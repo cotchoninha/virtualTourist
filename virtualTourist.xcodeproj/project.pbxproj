@@ -8,22 +8,22 @@
 
 /* Begin PBXBuildFile section */
 		0CDB909321076EF300DB440D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDB909221076EF300DB440D /* AppDelegate.swift */; };
-		0CDB909521076EF300DB440D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDB909421076EF300DB440D /* ViewController.swift */; };
 		0CDB909821076EF300DB440D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0CDB909621076EF300DB440D /* Main.storyboard */; };
 		0CDB909B21076EF300DB440D /* virtualTourist.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 0CDB909921076EF300DB440D /* virtualTourist.xcdatamodeld */; };
 		0CDB909D21076EF500DB440D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0CDB909C21076EF500DB440D /* Assets.xcassets */; };
 		0CDB90A021076EF500DB440D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0CDB909E21076EF500DB440D /* LaunchScreen.storyboard */; };
+		0CDB90A8210793A900DB440D /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDB90A7210793A900DB440D /* MapViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0CDB908F21076EF300DB440D /* virtualTourist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = virtualTourist.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0CDB909221076EF300DB440D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		0CDB909421076EF300DB440D /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		0CDB909721076EF300DB440D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		0CDB909A21076EF300DB440D /* virtualTourist.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = virtualTourist.xcdatamodel; sourceTree = "<group>"; };
 		0CDB909C21076EF500DB440D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0CDB909F21076EF500DB440D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0CDB90A121076EF500DB440D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0CDB90A7210793A900DB440D /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,7 +57,7 @@
 			isa = PBXGroup;
 			children = (
 				0CDB909221076EF300DB440D /* AppDelegate.swift */,
-				0CDB909421076EF300DB440D /* ViewController.swift */,
+				0CDB90A7210793A900DB440D /* MapViewController.swift */,
 				0CDB909621076EF300DB440D /* Main.storyboard */,
 				0CDB909C21076EF500DB440D /* Assets.xcassets */,
 				0CDB909E21076EF500DB440D /* LaunchScreen.storyboard */,
@@ -138,9 +138,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0CDB909521076EF300DB440D /* ViewController.swift in Sources */,
 				0CDB909B21076EF300DB440D /* virtualTourist.xcdatamodeld in Sources */,
 				0CDB909321076EF300DB440D /* AppDelegate.swift in Sources */,
+				0CDB90A8210793A900DB440D /* MapViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
