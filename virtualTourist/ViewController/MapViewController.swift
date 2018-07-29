@@ -34,19 +34,24 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     override func viewDidLoad() {
         super.viewDidLoad()
         mapView.delegate = self
-//        let fetchRequest: NSFetchRequest<Map> = Map.fetchRequest()
+        let fetchRequest: NSFetchRequest<Map> = Map.fetchRequest()
 //        let sortDescriptor = NSSortDescriptor(key: "date", ascending: false)
 //        fetchRequest.sortDescriptors = [sortDescriptor]
-//        do {
-//            let map = try DataBaseController.persistentContainer.viewContext.fetch(fetchRequest)
-//            mapView.addAnnotations(CLLocationCoordinate2D(latitude: map[0].latitude, longitude: map[0].longitude))
-//            print("Got")
-//
-//        } catch {
-//            print("Fetch failed")
-//        }
-//
+        do {
+            let locations = try DataBaseController.persistentContainer.viewContext.fetch(fetchRequest)
+            for item in locations{
+                let annotation = MKPointAnnotation()
+                annotation.coordinate.latitude = item.latitude
+                annotation.coordinate.longitude = item.longitude
+                annotations.append(annotation)
+                mapView.addAnnotations(annotations)
+            }
+        } catch {
+            print("Fetch failed")
+        }
+
         let uilgr = UILongPressGestureRecognizer(target: self, action: #selector(addPin(gestureRecognizer:)))
+        //TODO: VER PQ ESTÁ SALVANDO VÁRIAS VEZES
         uilgr.minimumPressDuration = 1.0
         uilgr.delegate = self
         mapView.addGestureRecognizer(uilgr)
@@ -55,17 +60,30 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
   
     
     @objc func addPin(gestureRecognizer:UIGestureRecognizer){
-        let touchPoint = gestureRecognizer.location(in: mapView)
-        let newCoordinates = mapView.convert(touchPoint, toCoordinateFrom: mapView)
-        let annotation = MKPointAnnotation()
-//        let mapLocation = Map(context: DataBaseController.persistentContainer
-//        .viewContext)
-//        mapLocation.latitude = mapView.centerCoordinate.latitude
-//        mapLocation.longitude = mapView.centerCoordinate.longitude
-//        try? DataBaseController.saveContext()
-        annotation.coordinate = newCoordinates
-        annotations.append(annotation)
-        mapView.addAnnotations(annotations)
+        if gestureRecognizer.state == .ended{
+            //obtaining new coordinates
+            let touchPoint = gestureRecognizer.location(in: mapView)
+            let newCoordinates = mapView.convert(touchPoint, toCoordinateFrom: mapView)
+            
+            //creating annotations and adding to map
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = newCoordinates
+            annotations.append(annotation)
+            mapView.addAnnotations(annotations)
+            
+            //init managedObject and add annotations to DataBase
+            
+            let mapLocation = Map(context: DataBaseController.persistentContainer
+                .viewContext)
+            mapLocation.latitude = newCoordinates.latitude
+            mapLocation.longitude = newCoordinates.longitude
+            do{
+                try DataBaseController.saveContext()
+                print("MARCELA: the data was saved")
+            }catch{
+                print("MARCELA: wasn't able to save the data")
+            }
+        }
     }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
@@ -99,5 +117,3 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     }
     
 }
-
-
