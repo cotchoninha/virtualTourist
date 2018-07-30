@@ -27,16 +27,16 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         let longitudeDelta = UserDefaults.standard.double(forKey: "longitudeDelta")
         let spam = MKCoordinateSpan(latitudeDelta: latitudeDelta, longitudeDelta: longitudeDelta)
         //create MKregion and set to mapview
-            mapView.setRegion(MKCoordinateRegion(center: center, span: spam), animated: true)
-            print("MARCELA : LATITUDE E LONGITUDE != DE 0 \(latitude) e \(longitude)")
+        mapView.setRegion(MKCoordinateRegion(center: center, span: spam), animated: true)
+        print("MARCELA : LATITUDE E LONGITUDE != DE 0 \(latitude) e \(longitude)")
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         mapView.delegate = self
         let fetchRequest: NSFetchRequest<Map> = Map.fetchRequest()
-//        let sortDescriptor = NSSortDescriptor(key: "date", ascending: false)
-//        fetchRequest.sortDescriptors = [sortDescriptor]
+        //        let sortDescriptor = NSSortDescriptor(key: "date", ascending: false)
+        //        fetchRequest.sortDescriptors = [sortDescriptor]
         do {
             let locations = try DataBaseController.persistentContainer.viewContext.fetch(fetchRequest)
             for item in locations{
@@ -49,7 +49,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         } catch {
             print("Fetch failed")
         }
-
+        
         let uilgr = UILongPressGestureRecognizer(target: self, action: #selector(addPin(gestureRecognizer:)))
         //TODO: VER PQ ESTÁ SALVANDO VÁRIAS VEZES
         uilgr.minimumPressDuration = 1.0
@@ -57,7 +57,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         mapView.addGestureRecognizer(uilgr)
     }
     
-  
+    
     
     @objc func addPin(gestureRecognizer:UIGestureRecognizer){
         if gestureRecognizer.state == .ended{
@@ -72,17 +72,12 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
             mapView.addAnnotations(annotations)
             
             //init managedObject and add annotations to DataBase
-            
             let mapLocation = Map(context: DataBaseController.persistentContainer
                 .viewContext)
             mapLocation.latitude = newCoordinates.latitude
             mapLocation.longitude = newCoordinates.longitude
-            do{
-                try DataBaseController.saveContext()
-                print("MARCELA: the data was saved")
-            }catch{
-                print("MARCELA: wasn't able to save the data")
-            }
+            
+            try? DataBaseController.saveContext()
         }
     }
     
