@@ -14,11 +14,13 @@ import CoreData
 class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDelegate{
     
     @IBOutlet weak var mapView: MKMapView!
-    var annotations = [MKPointAnnotation]()
+    @IBOutlet weak var tapPinsDeleteLabel: UILabel!
+    @IBOutlet weak var editButtonOutlet: UIBarButtonItem!
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         //check if there's LatLon saved on userDefaults
+        tapPinsDeleteLabel.isHidden = true
         let latitude = UserDefaults.standard.double(forKey: "latitude")
         let longitude = UserDefaults.standard.double(forKey: "longitude")
         let center = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
@@ -43,15 +45,13 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
                 let annotation = MKPointAnnotation()
                 annotation.coordinate.latitude = item.latitude
                 annotation.coordinate.longitude = item.longitude
-                annotations.append(annotation)
-                mapView.addAnnotations(annotations)
+                mapView.addAnnotation(annotation)
             }
         } catch {
             print("Fetch failed")
         }
         
         let uilgr = UILongPressGestureRecognizer(target: self, action: #selector(addPin(gestureRecognizer:)))
-        //TODO: VER PQ ESTÁ SALVANDO VÁRIAS VEZES
         uilgr.minimumPressDuration = 1.0
         uilgr.delegate = self
         mapView.addGestureRecognizer(uilgr)
@@ -64,51 +64,58 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
             //obtaining new coordinates
             let touchPoint = gestureRecognizer.location(in: mapView)
             let newCoordinates = mapView.convert(touchPoint, toCoordinateFrom: mapView)
-            
+
             //creating annotations and adding to map
             let annotation = MKPointAnnotation()
+            annotation.title = "title"
             annotation.coordinate = newCoordinates
-            annotations.append(annotation)
-            mapView.addAnnotations(annotations)
-            
+            mapView.addAnnotation(annotation)
+
             //init managedObject and add annotations to DataBase
             let mapLocation = Map(context: DataBaseController.persistentContainer
                 .viewContext)
             mapLocation.latitude = newCoordinates.latitude
             mapLocation.longitude = newCoordinates.longitude
-            
+
             try? DataBaseController.saveContext()
         }
     }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         let reuseId = "pin"
-        
         var pinView = mapView.dequeueReusableAnnotationView(withIdentifier: reuseId) as? MKPinAnnotationView
         
         if pinView == nil {
             pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reuseId)
             pinView!.canShowCallout = true
             pinView!.pinTintColor = .red
+            
             pinView!.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
         }
         else {
             pinView!.annotation = annotation
         }
-        
         return pinView
     }
     
-    func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
-        //code for when you click in a pin
-        //instanciar uma collection view
-        //empurrar o mapa pra cima igual faz com o teclado
-        
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        print("MARCELA: ENTRA NA FUNCAO QUANDO SELECIONO PIN")
+        if let annotation = view.annotation{
+            mapView.removeAnnotation(annotation)
+        }
     }
+    
     
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.region = mapView.region
     }
+    
+    @IBAction func editPinsButton(_ sender: Any) {
+        tapPinsDeleteLabel.isHidden = false
+        editButtonOutlet.title = "Done"
+        
+    }
+    
     
 }
