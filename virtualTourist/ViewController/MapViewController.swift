@@ -72,19 +72,19 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
             //obtaining new coordinates
             let touchPoint = gestureRecognizer.location(in: mapView)
             let newCoordinates = mapView.convert(touchPoint, toCoordinateFrom: mapView)
-
+            
             //creating annotations and adding to map
             let annotation = MKPointAnnotation()
             annotation.title = "title"
             annotation.coordinate = newCoordinates
             mapView.addAnnotation(annotation)
-
-//            init managedObject and add annotations to DataBase
+            
+            //            init managedObject and add annotations to DataBase
             let mapLocation = Map(context: DataBaseController.persistentContainer
                 .viewContext)
             mapLocation.latitude = newCoordinates.latitude
             mapLocation.longitude = newCoordinates.longitude
-
+            
             DataBaseController.saveContext()
         }
     }
@@ -107,12 +107,12 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         return pinView
     }
     
-    //    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-    //        print("MARCELA: ENTRA NA FUNCAO QUANDO SELECIONO PIN")
-    //        if let annotation = view.annotation{
-    //            mapView.removeAnnotation(annotation)
-    //        }
-    //    }
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        print("MARCELA: ENTRA NA FUNCAO QUANDO SELECIONO PIN")
+        if let annotation = view.annotation{
+            mapView.removeAnnotation(annotation)
+        }
+    }
     
     
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
