@@ -22,7 +22,9 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         //check if there's LatLon saved on userDefaults
         tapPinsDeleteLabel.isHidden = true
         let latitude = UserDefaults.standard.double(forKey: "latitude")
+        print("MARCELA: LATIDUDE \(latitude)")
         let longitude = UserDefaults.standard.double(forKey: "longitude")
+        print("MARCELA: LONGITUDE \(longitude)")
         let center = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
         //check if zoom is saved on userDefaults
         let latitudeDelta = UserDefaults.standard.double(forKey: "latitudeDelta")
@@ -35,6 +37,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("marcel: viewdidload")
         mapView.delegate = self
         let fetchRequest: NSFetchRequest<Map> = Map.fetchRequest()
         //        let sortDescriptor = NSSortDescriptor(key: "date", ascending: false)

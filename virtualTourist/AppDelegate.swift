@@ -18,9 +18,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var region: MKCoordinateRegion?
     let defaultLat = 51.507351
     let defaultLon = -0.127758
+    let defaultLatDelta = 1.0
+    let defaultLonDelta = 1.0
+
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+        
+        var hasLaunchedBefore = UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
+        if !hasLaunchedBefore{
+            UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
+            UserDefaults.standard.set(defaultLat, forKey: "latitude")
+            UserDefaults.standard.set(defaultLon, forKey: "longitude")
+            UserDefaults.standard.set(defaultLatDelta, forKey: "latitudeDelta")
+            UserDefaults.standard.set(defaultLonDelta, forKey: "longitudeDelta")
+        }
         // Override point for customization after application launch.
         return true
     }
@@ -28,9 +40,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillResignActive(_ application: UIApplication) {
         UserDefaults.standard.set((region?.center.latitude ?? defaultLat), forKey: "latitude")
         UserDefaults.standard.set((region?.center.longitude ?? defaultLon), forKey: "longitude")
-        UserDefaults.standard.set((region?.span.latitudeDelta ?? 0.0), forKey: "latitudeDelta")
-        UserDefaults.standard.set((region?.span.longitudeDelta ?? 0.0), forKey: "longitudeDelta")
-        print("MARCELA : setando novas \(region?.center.latitude ?? 0.0) e \(region?.center.longitude ?? 0.0) and Delta = \((region?.span.latitudeDelta ?? 0.0)), \((region?.span.latitudeDelta ?? 0.0))")
+        UserDefaults.standard.set((region?.span.latitudeDelta ?? 1.0), forKey: "latitudeDelta")
+        UserDefaults.standard.set((region?.span.longitudeDelta ?? 1.0), forKey: "longitudeDelta")
+        print("MARCELA : setando novas lat lon \(region?.center.latitude ?? 0.0) e \(region?.center.longitude ?? 0.0) and Delta = \((region?.span.latitudeDelta ?? 0.0)), \((region?.span.latitudeDelta ?? 0.0))")
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
