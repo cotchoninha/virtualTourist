@@ -46,6 +46,7 @@
 			children = (
 				0CDB909121076EF300DB440D /* virtualTourist */,
 				0CDB909021076EF300DB440D /* Products */,
+				0CDBFB80211092F700E9CD62 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -89,6 +90,13 @@
 			path = ViewController;
 			sourceTree = "<group>";
 		};
+		0CDBFB80211092F700E9CD62 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -121,6 +129,11 @@
 				TargetAttributes = {
 					0CDB908E21076EF300DB440D = {
 						CreatedOnToolsVersion = 9.4;
+						SystemCapabilities = {
+							com.apple.Maps.iOS = {
+								enabled = 0;
+							};
+						};
 					};
 				};
 			};

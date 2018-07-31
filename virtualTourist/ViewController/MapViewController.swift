@@ -17,14 +17,24 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     @IBOutlet weak var tapPinsDeleteLabel: UILabel!
     @IBOutlet weak var editButtonOutlet: UIBarButtonItem!
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        //check if there's LatLon saved on userDefaults
+    @IBAction func editPinsButton(_ sender: Any) {
+        tapPinsDeleteLabel.isHidden = false
+        editButtonOutlet.title = "Done"
+        
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        print("marcel: viewdidload")
+        
         tapPinsDeleteLabel.isHidden = true
+        
+        mapView.delegate = self
+        
+        //check if there's LatLon saved on userDefaults
         let latitude = UserDefaults.standard.double(forKey: "latitude")
-        print("MARCELA: LATIDUDE \(latitude)")
         let longitude = UserDefaults.standard.double(forKey: "longitude")
-        print("MARCELA: LONGITUDE \(longitude)")
+        print("MARCELA: LATIDUDE \(latitude) , LONGITUDE \(longitude)")
         let center = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
         //check if zoom is saved on userDefaults
         let latitudeDelta = UserDefaults.standard.double(forKey: "latitudeDelta")
@@ -33,19 +43,14 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         //create MKregion and set to mapview
         mapView.setRegion(MKCoordinateRegion(center: center, span: spam), animated: true)
         print("MARCELA : LATITUDE E LONGITUDE != DE 0 \(latitude) e \(longitude)")
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        print("marcel: viewdidload")
-        mapView.delegate = self
+        
         let fetchRequest: NSFetchRequest<Map> = Map.fetchRequest()
-        //        let sortDescriptor = NSSortDescriptor(key: "date", ascending: false)
-        //        fetchRequest.sortDescriptors = [sortDescriptor]
         do {
             let locations = try DataBaseController.persistentContainer.viewContext.fetch(fetchRequest)
             for item in locations{
+                print("Marcela: item em location \(item)")
                 let annotation = MKPointAnnotation()
+                annotation.title = "title"
                 annotation.coordinate.latitude = item.latitude
                 annotation.coordinate.longitude = item.longitude
                 mapView.addAnnotation(annotation)
@@ -60,7 +65,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         mapView.addGestureRecognizer(uilgr)
     }
     
-    
+    //MARK: UIGestureRecognizerDelegate methods
     
     @objc func addPin(gestureRecognizer:UIGestureRecognizer){
         if gestureRecognizer.state == .ended{
@@ -74,15 +79,17 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
             annotation.coordinate = newCoordinates
             mapView.addAnnotation(annotation)
 
-            //init managedObject and add annotations to DataBase
+//            init managedObject and add annotations to DataBase
             let mapLocation = Map(context: DataBaseController.persistentContainer
                 .viewContext)
             mapLocation.latitude = newCoordinates.latitude
             mapLocation.longitude = newCoordinates.longitude
 
-            try? DataBaseController.saveContext()
+            DataBaseController.saveContext()
         }
     }
+    
+    //MARK: MKMapViewDelegate methods
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         let reuseId = "pin"
@@ -90,10 +97,9 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         
         if pinView == nil {
             pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reuseId)
-            pinView!.canShowCallout = true
+            pinView!.canShowCallout = false
             pinView!.pinTintColor = .red
-            
-            pinView!.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
+            pinView!.animatesDrop = true
         }
         else {
             pinView!.annotation = annotation
@@ -101,23 +107,17 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         return pinView
     }
     
-    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        print("MARCELA: ENTRA NA FUNCAO QUANDO SELECIONO PIN")
-        if let annotation = view.annotation{
-            mapView.removeAnnotation(annotation)
-        }
-    }
+    //    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+    //        print("MARCELA: ENTRA NA FUNCAO QUANDO SELECIONO PIN")
+    //        if let annotation = view.annotation{
+    //            mapView.removeAnnotation(annotation)
+    //        }
+    //    }
     
     
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.region = mapView.region
-    }
-    
-    @IBAction func editPinsButton(_ sender: Any) {
-        tapPinsDeleteLabel.isHidden = false
-        editButtonOutlet.title = "Done"
-        
     }
     
     

@@ -12,7 +12,13 @@ import CoreData
 class DataBaseController{
     
     private init(){
-        
+        //private so no one can create an instance of DataBaseController
+    }
+    
+    //MARK: CoreDataStack
+    
+    class func getContext() -> NSManagedObjectContext{
+        return DataBaseController.persistentContainer.viewContext
     }
     
     static var persistentContainer: NSPersistentContainer = {
@@ -45,7 +51,7 @@ class DataBaseController{
     // MARK: - Core Data Saving support
     
     class func saveContext () {
-        let context = persistentContainer.viewContext
+        let context = DataBaseController.persistentContainer.viewContext
         if context.hasChanges {
             do {
                 try context.save()

@@ -25,7 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         
-        var hasLaunchedBefore = UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
+        let hasLaunchedBefore = UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
         if !hasLaunchedBefore{
             UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
             UserDefaults.standard.set(defaultLat, forKey: "latitude")
@@ -40,8 +40,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillResignActive(_ application: UIApplication) {
         UserDefaults.standard.set((region?.center.latitude ?? defaultLat), forKey: "latitude")
         UserDefaults.standard.set((region?.center.longitude ?? defaultLon), forKey: "longitude")
-        UserDefaults.standard.set((region?.span.latitudeDelta ?? 1.0), forKey: "latitudeDelta")
-        UserDefaults.standard.set((region?.span.longitudeDelta ?? 1.0), forKey: "longitudeDelta")
+        UserDefaults.standard.set((region?.span.latitudeDelta ?? defaultLatDelta), forKey: "latitudeDelta")
+        UserDefaults.standard.set((region?.span.longitudeDelta ?? defaultLonDelta), forKey: "longitudeDelta")
         print("MARCELA : setando novas lat lon \(region?.center.latitude ?? 0.0) e \(region?.center.longitude ?? 0.0) and Delta = \((region?.span.latitudeDelta ?? 0.0)), \((region?.span.latitudeDelta ?? 0.0))")
     }
 
