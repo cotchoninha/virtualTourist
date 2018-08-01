@@ -16,6 +16,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var tapPinsDeleteLabel: UILabel!
     @IBOutlet weak var editButtonOutlet: UIBarButtonItem!
+    var mapAnnotationDictionary: Dictionary = [MKPointAnnotation: Map]()
     
     @IBAction func editPinsButton(_ sender: Any) {
         tapPinsDeleteLabel.isHidden = false
@@ -47,17 +48,19 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         let fetchRequest: NSFetchRequest<Map> = Map.fetchRequest()
         do {
             let locations = try DataBaseController.persistentContainer.viewContext.fetch(fetchRequest)
-            for item in locations{
-                print("Marcela: item em location \(item)")
+            for map in locations{
+                print("Marcela: item em location \(map)")
                 let annotation = MKPointAnnotation()
                 annotation.title = "title"
-                annotation.coordinate.latitude = item.latitude
-                annotation.coordinate.longitude = item.longitude
+                annotation.coordinate.latitude = map.latitude
+                annotation.coordinate.longitude = map.longitude
+                mapAnnotationDictionary[annotation] = map
                 mapView.addAnnotation(annotation)
             }
         } catch {
             print("Fetch failed")
         }
+        print("MARCELA DICTIONARY: \(mapAnnotationDictionary)")
         
         let uilgr = UILongPressGestureRecognizer(target: self, action: #selector(addPin(gestureRecognizer:)))
         uilgr.minimumPressDuration = 1.0
@@ -111,6 +114,12 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         print("MARCELA: ENTRA NA FUNCAO QUANDO SELECIONO PIN")
         if let annotation = view.annotation{
             mapView.removeAnnotation(annotation)
+            if let mapForAnnotation = mapAnnotationDictionary[annotation as! MKPointAnnotation]{
+            DataBaseController.persistentContainer.viewContext.delete(mapForAnnotation)
+            DataBaseController.saveContext()
+            mapAnnotationDictionary[annotation as! MKPointAnnotation] = nil
+            }
+            
         }
     }
     
