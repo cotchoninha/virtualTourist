@@ -33,10 +33,12 @@
                                     </navigationItem>
                                 </items>
                             </navigationBar>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Tap Pins to Delete" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="s8p-YA-EU2">
-                                <rect key="frame" x="0.0" y="620" width="375" height="47"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tap Pins to Delete" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="s8p-YA-EU2">
+                                <rect key="frame" x="0.0" y="630" width="375" height="37"/>
                                 <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="37" id="BYj-CJ-cZQ"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
@@ -51,6 +53,9 @@
                             <constraint firstItem="5AS-Ry-BH8" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="G4W-Rn-Jct"/>
                             <constraint firstItem="5AS-Ry-BH8" firstAttribute="top" secondItem="BeS-yB-nKf" secondAttribute="bottom" id="Ot2-5x-dfm"/>
                             <constraint firstItem="BeS-yB-nKf" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="P6d-mQ-kyw"/>
+                            <constraint firstItem="s8p-YA-EU2" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="WFL-TN-9X1"/>
+                            <constraint firstItem="s8p-YA-EU2" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="WH6-B8-BuQ"/>
+                            <constraint firstItem="s8p-YA-EU2" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="dg2-k5-X4Y"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
