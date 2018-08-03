@@ -46,7 +46,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         do {
             let locations = try DataBaseController.persistentContainer.viewContext.fetch(fetchRequest)
             for map in locations{
-                print("Marcela: item em location \(map)")
                 let annotation = MKPointAnnotation()
                 annotation.title = "title"
                 annotation.coordinate.latitude = map.latitude
@@ -57,7 +56,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         } catch {
             print("Fetch failed")
         }
-        print("MARCELA DICTIONARY: \(mapAnnotationDictionary)")
+//        print("MARCELA DICTIONARY: \(mapAnnotationDictionary)")
         
         
         let uilgr = UILongPressGestureRecognizer(target: self, action: #selector(addPin(gestureRecognizer:)))
@@ -138,6 +137,12 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
             }
         }else{
             //faz o request pro flicker e troca a VC
+            let controller = self.storyboard?.instantiateViewController(withIdentifier: "PhotosVC") as! PhotosViewController
+            if let annotation = view.annotation{
+                controller.annotation = annotation as? MKPointAnnotation
+                controller.mapRegion = self.mapView.region
+                self.present(controller, animated: true, completion: nil)
+            }
         }
     }
     
