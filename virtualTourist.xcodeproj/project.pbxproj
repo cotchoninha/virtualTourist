@@ -18,6 +18,7 @@
 		0CDBFB862112764000E9CD62 /* PhotosViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDBFB852112764000E9CD62 /* PhotosViewController.swift */; };
 		0CDBFB8821135DD200E9CD62 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDBFB8721135DD200E9CD62 /* Constants.swift */; };
 		0CDBFB8A211474A900E9CD62 /* GCDBlackBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDBFB89211474A900E9CD62 /* GCDBlackBox.swift */; };
+		0CDBFB8C2114D34400E9CD62 /* PhotoViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDBFB8B2114D34400E9CD62 /* PhotoViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,7 @@
 		0CDBFB852112764000E9CD62 /* PhotosViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosViewController.swift; sourceTree = "<group>"; };
 		0CDBFB8721135DD200E9CD62 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		0CDBFB89211474A900E9CD62 /* GCDBlackBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GCDBlackBox.swift; sourceTree = "<group>"; };
+		0CDBFB8B2114D34400E9CD62 /* PhotoViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,12 +69,12 @@
 		0CDB909121076EF300DB440D /* virtualTourist */ = {
 			isa = PBXGroup;
 			children = (
+				0CDB909621076EF300DB440D /* Main.storyboard */,
 				0CDB90AE210A44FB00DB440D /* ViewController */,
 				0CDB90AD210A44F500DB440D /* Model */,
 				0CDB909221076EF300DB440D /* AppDelegate.swift */,
 				0CDB90AB210A44E300DB440D /* DataBaseController.swift */,
 				0CDB90A9210A433400DB440D /* Map+extension.swift */,
-				0CDB909621076EF300DB440D /* Main.storyboard */,
 				0CDB909C21076EF500DB440D /* Assets.xcassets */,
 				0CDB909E21076EF500DB440D /* LaunchScreen.storyboard */,
 				0CDB90A121076EF500DB440D /* Info.plist */,
@@ -93,6 +95,7 @@
 			children = (
 				0CDB90A7210793A900DB440D /* MapViewController.swift */,
 				0CDBFB852112764000E9CD62 /* PhotosViewController.swift */,
+				0CDBFB8B2114D34400E9CD62 /* PhotoViewCell.swift */,
 				0CDBFB8721135DD200E9CD62 /* Constants.swift */,
 				0CDBFB89211474A900E9CD62 /* GCDBlackBox.swift */,
 			);
@@ -184,6 +187,7 @@
 			files = (
 				0CDBFB8A211474A900E9CD62 /* GCDBlackBox.swift in Sources */,
 				0CDB90AC210A44E300DB440D /* DataBaseController.swift in Sources */,
+				0CDBFB8C2114D34400E9CD62 /* PhotoViewCell.swift in Sources */,
 				0CDB90AA210A433400DB440D /* Map+extension.swift in Sources */,
 				0CDB909B21076EF300DB440D /* virtualTourist.xcdatamodeld in Sources */,
 				0CDBFB862112764000E9CD62 /* PhotosViewController.swift in Sources */,

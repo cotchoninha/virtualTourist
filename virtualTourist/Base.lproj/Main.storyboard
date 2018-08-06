@@ -117,15 +117,28 @@
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="PuQ-JJ-VqG">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="photoCell" id="PuQ-JJ-VqG" customClass="PhotoViewCell" customModule="virtualTourist" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="0.0" width="134" height="123"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
                                             <rect key="frame" x="0.0" y="0.0" width="134" height="123"/>
                                             <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hCd-d6-bMr">
+                                                    <rect key="frame" x="0.0" y="0.0" width="134" height="123"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                </imageView>
+                                            </subviews>
                                         </view>
+                                        <connections>
+                                            <outlet property="photoImage" destination="hCd-d6-bMr" id="ZaK-Mf-THa"/>
+                                        </connections>
                                     </collectionViewCell>
                                 </cells>
+                                <connections>
+                                    <outlet property="dataSource" destination="D2z-5L-n0o" id="mgB-fU-c9c"/>
+                                    <outlet property="delegate" destination="D2z-5L-n0o" id="DIW-zg-KOj"/>
+                                </connections>
                             </collectionView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -147,6 +160,9 @@
                         <viewLayoutGuide key="safeArea" id="W9z-LR-nSm"/>
                     </view>
                     <connections>
+                        <outlet property="NewCollectionButtonOutlet" destination="LY9-cx-wVd" id="omY-tA-F17"/>
+                        <outlet property="collectionView" destination="bY7-ED-UNV" id="Jh4-Qu-KAs"/>
+                        <outlet property="flowLayout" destination="Ygo-bo-Yyq" id="kuP-IG-ekj"/>
                         <outlet property="mapView" destination="rG1-hW-vc7" id="P7r-i7-7Wu"/>
                         <outlet property="photoCollection" destination="bY7-ED-UNV" id="j01-Il-pgt"/>
                     </connections>
