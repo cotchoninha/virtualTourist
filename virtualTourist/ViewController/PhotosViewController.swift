@@ -118,9 +118,10 @@ extension PhotosViewController: UICollectionViewDelegate, UICollectionViewDataSo
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        //quando eu deselect a última foto selected ele volta o title e o deleteMode = false
-//        isOnDeleteMode = false
-//        NewCollectionButtonOutlet.title = "New Collection"
+        indexOfPhotosToDelete = indexOfPhotosToDelete.filter { $0 != indexPath.row}
+        if indexOfPhotosToDelete.count == 0{
+            NewCollectionButtonOutlet.title = "New Collection"
+        }
     }
 }
 
