@@ -47,6 +47,7 @@ class PhotosViewController: UIViewController{
     @IBAction func newCollectionButton(_ sender: Any) {
     }
     @IBAction func okeyBackButton(_ sender: Any) {
+        
     }
     
     
@@ -74,7 +75,7 @@ extension PhotosViewController: UICollectionViewDelegate, UICollectionViewDataSo
     
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return max(photosURLArray.count, 21)
+        return min(21, photosURLArray.count)
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
