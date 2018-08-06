@@ -47,7 +47,8 @@ class PhotosViewController: UIViewController{
     @IBAction func newCollectionButton(_ sender: Any) {
     }
     @IBAction func okeyBackButton(_ sender: Any) {
-        
+        self.modalTransitionStyle = .flipHorizontal
+        self.dismiss(animated: true, completion: nil)
     }
     
     
