@@ -19,6 +19,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     var mapAnnotationDictionary: Dictionary = [MKPointAnnotation: Map]()
     var isOnEditMode = false
     var photosURLArray = [String]()
+    var numberOfPages = 1
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -137,7 +138,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         }else{
             //faz o request pro flicker e troca a VC
             if let annotation = view.annotation{
-                let methodParameters = [Constants.FlickrParameterKeys.Method:Constants.FlickrParameterValues.SearchPhotosMethod, Constants.FlickrParameterKeys.APIKey: Constants.FlickrParameterValues.APIKey, Constants.FlickrParameterKeys.Latitude: "\(annotation.coordinate.latitude)", Constants.FlickrParameterKeys.Longitude: "\(annotation.coordinate.longitude)", Constants.FlickrParameterKeys.Extras: Constants.FlickrParameterValues.MediumURL,  Constants.FlickrParameterKeys.Format: Constants.FlickrParameterValues.ResponseFormat, Constants.FlickrParameterKeys.NoJSONCallback: Constants.FlickrParameterValues.DisableJSONCallback]
+                let methodParameters = [Constants.FlickrParameterKeys.Method:Constants.FlickrParameterValues.SearchPhotosMethod, Constants.FlickrParameterKeys.APIKey: Constants.FlickrParameterValues.APIKey, Constants.FlickrParameterKeys.Latitude: "\(annotation.coordinate.latitude)", Constants.FlickrParameterKeys.Longitude: "\(annotation.coordinate.longitude)", Constants.FlickrParameterKeys.Extras: Constants.FlickrParameterValues.MediumURL,  Constants.FlickrParameterKeys.Format: Constants.FlickrParameterValues.ResponseFormat, Constants.FlickrParameterKeys.NoJSONCallback: Constants.FlickrParameterValues.DisableJSONCallback, Constants.FlickrParameterKeys.Page: String(numberOfPages), Constants.FlickrParameterKeys.Perpage: String(Constants.FlickrParameterValues.NumberPerpage)]
                 
                 //chama a funcao que monta o metodo e adiciona a APIBaseURL
                 let urlString = Constants.Flickr.APIBaseURL + escapedParameters(methodParameters as [String:AnyObject])
@@ -202,7 +203,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
                             displayError("Cannot find urlm value")
                             return
                         }
-                        print("Marcela \(urlm)")
+                        print("Marcela \(urlm) and photoArray.count = \(photoArray.count)")
                         self.photosURLArray.append(urlm as! String)
                     }
                     performUIUpdatesOnMain {

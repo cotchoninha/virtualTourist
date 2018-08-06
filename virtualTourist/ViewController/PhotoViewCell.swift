@@ -12,4 +12,14 @@ import UIKit
 class PhotoViewCell: UICollectionViewCell {
     
     @IBOutlet weak var photoImage: UIImageView!
+    
+    override var isSelected: Bool{
+        didSet{
+            if isSelected{
+               photoImage.alpha = 0.2
+            }else{
+                photoImage.alpha = 1.0
+            }
+        }
+    }
 }
