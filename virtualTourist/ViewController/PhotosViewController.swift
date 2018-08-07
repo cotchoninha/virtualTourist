@@ -60,20 +60,13 @@ class PhotosViewController: UIViewController{
             //precisa atualizar
             isOnDeleteMode = false
         }else{
-            if photosURLArray.count > 21{
-                photosURLArray.removeSubrange((0..<22))
-                collectionView.reloadData()
-            } else{
-                photosURLArray.removeAll()
-                collectionView.reloadData()
-            }
+            //fazer request
         }
     }
     
     @IBAction func okeyBackButton(_ sender: Any) {
         photosURLArray.removeAll()
         let mapController = self.storyboard?.instantiateViewController(withIdentifier: "MapVC") as! MapViewController
-        mapController.photosURLArray = [String]()
         self.present(mapController, animated: true, completion: nil)
     }
     
