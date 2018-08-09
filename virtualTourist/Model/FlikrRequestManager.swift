@@ -7,7 +7,7 @@
 //
 
 import Foundation
-
+import UIKit
 class FlikrRequestManager: NSObject{
     
     //singleton
@@ -18,9 +18,9 @@ class FlikrRequestManager: NSObject{
         return Singleton.sharedInstance
     }
     
-    func getPhotos(latitude: Double, longitude: Double, numberOfPages: Int, _ completionHandlerForGETPHOTOS: @escaping (_ success: Bool, _ photosURLArray: [String]?, _ error: Error?) -> Void) {
+    func getPhotos(latitude: Double, longitude: Double, numberOfPage: Int, _ completionHandlerForGETPHOTOS: @escaping (_ success: Bool, _ photosURLArray: [String]?, _ numberOfPagesResult: Int?, _ error: Error?) -> Void) {
         
-        let methodParameters = [Constants.FlickrParameterKeys.Method:Constants.FlickrParameterValues.SearchPhotosMethod, Constants.FlickrParameterKeys.APIKey: Constants.FlickrParameterValues.APIKey, Constants.FlickrParameterKeys.Latitude: "\(latitude)", Constants.FlickrParameterKeys.Longitude: "\(longitude)", Constants.FlickrParameterKeys.Extras: Constants.FlickrParameterValues.MediumURL,  Constants.FlickrParameterKeys.Format: Constants.FlickrParameterValues.ResponseFormat, Constants.FlickrParameterKeys.NoJSONCallback: Constants.FlickrParameterValues.DisableJSONCallback, Constants.FlickrParameterKeys.Page: String(numberOfPages), Constants.FlickrParameterKeys.Perpage: String(Constants.FlickrParameterValues.NumberPerpage)]
+        let methodParameters = [Constants.FlickrParameterKeys.Method:Constants.FlickrParameterValues.SearchPhotosMethod, Constants.FlickrParameterKeys.APIKey: Constants.FlickrParameterValues.APIKey, Constants.FlickrParameterKeys.Latitude: "\(latitude)", Constants.FlickrParameterKeys.Longitude: "\(longitude)", Constants.FlickrParameterKeys.Extras: Constants.FlickrParameterValues.MediumURL,  Constants.FlickrParameterKeys.Format: Constants.FlickrParameterValues.ResponseFormat, Constants.FlickrParameterKeys.NoJSONCallback: Constants.FlickrParameterValues.DisableJSONCallback, Constants.FlickrParameterKeys.Page: String(numberOfPage), Constants.FlickrParameterKeys.Perpage: String(Constants.FlickrParameterValues.NumberPerpage)]
         
         //chama a funcao que monta o metodo e adiciona a APIBaseURL
         let urlString = Constants.Flickr.APIBaseURL + escapedParameters(methodParameters as [String:AnyObject])
@@ -37,7 +37,7 @@ class FlikrRequestManager: NSObject{
             func displayError(_ error: String) {
                 print(error)
                 print("URL at time of error: \(url)")
-                completionHandlerForGETPHOTOS(false, nil, error as! Error)
+                completionHandlerForGETPHOTOS(false, nil, nil, error as? Error)
             }
             
             /* GUARD: Was there an error? */
@@ -74,7 +74,7 @@ class FlikrRequestManager: NSObject{
             }
             
             /* GUARD: Are the "photos" and "photo" keys in our result? */
-            guard let photosDictionary = parsedResult[Constants.FlickrResponseKeys.Photos] as? [String:AnyObject], let photoArray = photosDictionary[Constants.FlickrResponseKeys.Photo] as? [[String:AnyObject]] else {
+            guard let photosDictionary = parsedResult[Constants.FlickrResponseKeys.Photos] as? [String:AnyObject], let photoArray = photosDictionary[Constants.FlickrResponseKeys.Photo] as? [[String:AnyObject]], let totalNumberOfPages = photosDictionary[Constants.FlickrResponseKeys.Pages] as? Int else {
                 displayError("Cannot find keys '\(Constants.FlickrResponseKeys.Photos)' and '\(Constants.FlickrResponseKeys.Photo)' in \(parsedResult)")
                 return
             }
@@ -86,10 +86,10 @@ class FlikrRequestManager: NSObject{
                     displayError("Cannot find urlm value")
                     return
                 }
-                print("Marcela \(urlm) and photoArray.count = \(photoArray.count)")
+//                print("Marcela \(urlm) and photoArray.count = \(photoArray.count)")
                 photosURLArray.append(urlm as! String)
             }
-            completionHandlerForGETPHOTOS(true, photosURLArray, nil)
+            completionHandlerForGETPHOTOS(true, photosURLArray, totalNumberOfPages, nil)
         }
         task.resume()
     }

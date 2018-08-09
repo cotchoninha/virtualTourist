@@ -17,6 +17,8 @@ class PhotosViewController: UIViewController{
     var photosURLArray = [String]()
     var isOnDeleteMode = false
     var indexOfPhotosToDelete = [Int]()
+    var numberOfPage = 2
+    var totalNumberOfPages: Int!
     
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
@@ -60,7 +62,37 @@ class PhotosViewController: UIViewController{
             //precisa atualizar
             isOnDeleteMode = false
         }else{
-            //fazer request
+            if let latitude = annotation?.coordinate.latitude, let longitude = annotation?.coordinate.longitude{
+                FlikrRequestManager.sharedInstance().getPhotos(latitude: latitude, longitude: longitude, numberOfPage: numberOfPage) { (success, photosURLarray, totalNumberOfPages, error) in
+                    if success{
+                        if let photosURLArray = photosURLarray{
+                            self.photosURLArray = photosURLArray
+                            performUIUpdatesOnMain {
+                                self.collectionView.reloadData()
+                            }
+                        }
+                    }else{
+                        //handle error
+                    }
+                }
+            }
+            if numberOfPage <= totalNumberOfPages{
+                numberOfPage += 1
+                print("Marcela: \(numberOfPage)")
+            }else if numberOfPage > totalNumberOfPages{
+                collectionView.isHidden = true
+                let label = UILabel()
+                label.frame = CGRect(x: 0, y: 526, width: self.view.frame.width, height: 50)
+                label.text = "This pin has no images."
+                label.textAlignment = .center
+                label.textColor = UIColor.black
+                label.backgroundColor = UIColor.white
+                label.font = UIFont(name: "Arial", size: 26)
+                self.view.addSubview(label)
+                NewCollectionButtonOutlet.isEnabled = false
+                
+                //quando passar o numero total de paginas ele tem que parar de fazer o
+            }
         }
     }
     

@@ -21,8 +21,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let defaultLatDelta = 1.0
     let defaultLonDelta = 1.0
 
-
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         
         let hasLaunchedBefore = UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
@@ -42,7 +40,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UserDefaults.standard.set((region?.center.longitude ?? defaultLon), forKey: "longitude")
         UserDefaults.standard.set((region?.span.latitudeDelta ?? defaultLatDelta), forKey: "latitudeDelta")
         UserDefaults.standard.set((region?.span.longitudeDelta ?? defaultLonDelta), forKey: "longitudeDelta")
-        print("MARCELA : setando novas lat lon \(region?.center.latitude ?? 0.0) e \(region?.center.longitude ?? 0.0) and Delta = \((region?.span.latitudeDelta ?? 0.0)), \((region?.span.latitudeDelta ?? 0.0))")
+//        print("MARCELA : setando novas lat lon \(region?.center.latitude ?? 0.0) e \(region?.center.longitude ?? 0.0) and Delta = \((region?.span.latitudeDelta ?? 0.0)), \((region?.span.latitudeDelta ?? 0.0))")
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {

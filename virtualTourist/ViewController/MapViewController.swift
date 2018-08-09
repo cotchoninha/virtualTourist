@@ -18,11 +18,10 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     @IBOutlet weak var editButtonOutlet: UIBarButtonItem!
     var mapAnnotationDictionary: Dictionary = [MKPointAnnotation: Map]()
     var isOnEditMode = false
-    var numberOfPages = 1
+    var numberOfPage = 1
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("marcel: viewdidload")
         
         tapPinsDeleteLabel.isHidden = true
         
@@ -134,14 +133,21 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
                 }
             }else{
                 //faz o request pro flicker e troca a VC
-                FlikrRequestManager.sharedInstance().getPhotos(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude, numberOfPages: numberOfPages){(success, photosURLArray, error) in
+                UserDefaults.standard.set(mapView.centerCoordinate.latitude, forKey: "latitude")
+                UserDefaults.standard.set(mapView.centerCoordinate.longitude, forKey: "longitude")
+                UserDefaults.standard.set(mapView.region.span.latitudeDelta, forKey: "latitudeDelta")
+                UserDefaults.standard.set(mapView.region.span.longitudeDelta, forKey: "longitudeDelta")
+                FlikrRequestManager.sharedInstance().getPhotos(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude, numberOfPage: numberOfPage){(success, photosURLArray, totalNumberOfPages, error) in
                     performUIUpdatesOnMain {
                         if success{
                             let controller = self.storyboard?.instantiateViewController(withIdentifier: "PhotosVC") as! PhotosViewController
-                                controller.annotation = annotation as? MKPointAnnotation
-                                controller.mapRegion = self.mapView.region
-                            if let photosURLArray = photosURLArray{
-                                controller.photosURLArray = photosURLArray
+                            controller.annotation = annotation as? MKPointAnnotation
+                            controller.mapRegion = self.mapView.region
+                            if let photosURLArray = photosURLArray {
+                                if let totalNumberOfPages = totalNumberOfPages{
+                                    controller.photosURLArray = photosURLArray
+                                    controller.totalNumberOfPages = totalNumberOfPages
+                                }
                             }
                             self.present(controller, animated: true, completion: nil)
                         }else{
