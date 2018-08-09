@@ -23,7 +23,7 @@ class PhotosViewController: UIViewController{
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var NewCollectionButtonOutlet: UIBarButtonItem!
-    
+    @IBOutlet weak var photoCollection: UICollectionView!
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     
     
@@ -48,7 +48,6 @@ class PhotosViewController: UIViewController{
         collectionView?.allowsMultipleSelection = true
         
     }
-    @IBOutlet weak var photoCollection: UICollectionView!
     
     @IBAction func newCollectionButton(_ sender: Any) {
         if isOnDeleteMode{
@@ -128,11 +127,11 @@ extension PhotosViewController: UICollectionViewDelegate, UICollectionViewDataSo
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! PhotoViewCell
-        let photoUrlString = photosURLArray[indexPath.row]
-        let photoSquareURLstring = URL(string: photoUrlString)
-        if let imageData = try? Data(contentsOf: photoSquareURLstring!) {
-            cell.photoImage.image = UIImage(data: imageData)
-        }
+//        let photoUrlString = photosURLArray[indexPath.row]
+//        let photoSquareURLstring = URL(string: photoUrlString)
+//        if let imageData = try? Data(contentsOf: photoSquareURLstring!) {
+//            cell.photoImage.image = UIImage(data: imageData)
+//        }
         return cell
     }
     
