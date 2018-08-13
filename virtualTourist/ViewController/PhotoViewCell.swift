@@ -12,6 +12,7 @@ import UIKit
 class PhotoViewCell: UICollectionViewCell {
     
     @IBOutlet weak var photoImage: UIImageView!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     override var isSelected: Bool{
         didSet{

@@ -18,7 +18,7 @@ class FlikrRequestManager: NSObject{
         return Singleton.sharedInstance
     }
     
-    func getPhotos(latitude: Double, longitude: Double, numberOfPage: Int, _ completionHandlerForGETPHOTOS: @escaping (_ success: Bool, _ photosURLArray: [String]?, _ numberOfPagesResult: Int?, _ error: Error?) -> Void) {
+    func getPhotos(latitude: Double, longitude: Double, numberOfPage: Int, _ completionHandlerForGETPHOTOS: @escaping (_ success: Bool, _ imagesArray: [ImageStruct]?, _ numberOfPagesResult: Int?, _ error: Error?) -> Void) {
         
         let methodParameters = [Constants.FlickrParameterKeys.Method:Constants.FlickrParameterValues.SearchPhotosMethod, Constants.FlickrParameterKeys.APIKey: Constants.FlickrParameterValues.APIKey, Constants.FlickrParameterKeys.Latitude: "\(latitude)", Constants.FlickrParameterKeys.Longitude: "\(longitude)", Constants.FlickrParameterKeys.Extras: Constants.FlickrParameterValues.MediumURL,  Constants.FlickrParameterKeys.Format: Constants.FlickrParameterValues.ResponseFormat, Constants.FlickrParameterKeys.NoJSONCallback: Constants.FlickrParameterValues.DisableJSONCallback, Constants.FlickrParameterKeys.Page: String(numberOfPage), Constants.FlickrParameterKeys.Perpage: String(Constants.FlickrParameterValues.NumberPerpage)]
         
@@ -78,18 +78,18 @@ class FlikrRequestManager: NSObject{
                 displayError("Cannot find keys '\(Constants.FlickrResponseKeys.Photos)' and '\(Constants.FlickrResponseKeys.Photo)' in \(parsedResult)")
                 return
             }
-            
+           
             //use photos inside photoArray
-            var photosURLArray = [String]()
+            var imagesArray = [ImageStruct]()
             for file in photoArray{
                 guard let urlm = file["url_m"] else{
                     displayError("Cannot find urlm value")
                     return
                 }
 //                print("Marcela \(urlm) and photoArray.count = \(photoArray.count)")
-                photosURLArray.append(urlm as! String)
+                imagesArray.append(ImageStruct(url: urlm as! String, imageData: nil))
             }
-            completionHandlerForGETPHOTOS(true, photosURLArray, totalNumberOfPages, nil)
+            completionHandlerForGETPHOTOS(true, imagesArray, totalNumberOfPages, nil)
         }
         task.resume()
     }

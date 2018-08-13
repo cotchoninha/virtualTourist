@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0C707BBA2122152A003FEEB1 /* Image.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C707BB92122152A003FEEB1 /* Image.swift */; };
 		0CDB909321076EF300DB440D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDB909221076EF300DB440D /* AppDelegate.swift */; };
 		0CDB909821076EF300DB440D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0CDB909621076EF300DB440D /* Main.storyboard */; };
 		0CDB909B21076EF300DB440D /* virtualTourist.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 0CDB909921076EF300DB440D /* virtualTourist.xcdatamodeld */; };
@@ -22,6 +23,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0C707BB92122152A003FEEB1 /* Image.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Image.swift; sourceTree = "<group>"; };
 		0CDB908F21076EF300DB440D /* virtualTourist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = virtualTourist.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0CDB909221076EF300DB440D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0CDB909721076EF300DB440D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -97,6 +99,7 @@
 				0CDBFB852112764000E9CD62 /* PhotosViewController.swift */,
 				0CDBFB8B2114D34400E9CD62 /* PhotoViewCell.swift */,
 				0CDBFB8721135DD200E9CD62 /* Constants.swift */,
+				0C707BB92122152A003FEEB1 /* Image.swift */,
 				0CDBFB89211474A900E9CD62 /* GCDBlackBox.swift */,
 			);
 			path = ViewController;
@@ -194,6 +197,7 @@
 				0CDBFB8821135DD200E9CD62 /* Constants.swift in Sources */,
 				0CDB909321076EF300DB440D /* AppDelegate.swift in Sources */,
 				0CDB90A8210793A900DB440D /* MapViewController.swift in Sources */,
+				0C707BBA2122152A003FEEB1 /* Image.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

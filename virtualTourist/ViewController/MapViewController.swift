@@ -137,15 +137,15 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
                 UserDefaults.standard.set(mapView.centerCoordinate.longitude, forKey: "longitude")
                 UserDefaults.standard.set(mapView.region.span.latitudeDelta, forKey: "latitudeDelta")
                 UserDefaults.standard.set(mapView.region.span.longitudeDelta, forKey: "longitudeDelta")
-                FlikrRequestManager.sharedInstance().getPhotos(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude, numberOfPage: numberOfPage){(success, photosURLArray, totalNumberOfPages, error) in
+                FlikrRequestManager.sharedInstance().getPhotos(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude, numberOfPage: numberOfPage){(success, imagesArray, totalNumberOfPages, error) in
                     performUIUpdatesOnMain {
                         if success{
                             let controller = self.storyboard?.instantiateViewController(withIdentifier: "PhotosVC") as! PhotosViewController
                             controller.annotation = annotation as? MKPointAnnotation
                             controller.mapRegion = self.mapView.region
-                            if let photosURLArray = photosURLArray {
+                            if let imagesArray = imagesArray {
                                 if let totalNumberOfPages = totalNumberOfPages{
-                                    controller.photosURLArray = photosURLArray
+                                    controller.imagesArray = imagesArray
                                     controller.totalNumberOfPages = totalNumberOfPages
                                 }
                             }

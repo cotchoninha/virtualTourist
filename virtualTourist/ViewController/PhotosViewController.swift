@@ -14,7 +14,9 @@ class PhotosViewController: UIViewController{
     
     var annotation: MKPointAnnotation?
     var mapRegion: MKCoordinateRegion?
-    var photosURLArray = [String]()
+//    var photosURLArray = [String]()
+    var imagesArray = [ImageStruct]()
+//    var downloadedImages = [UIImage?]()
     var isOnDeleteMode = false
     var indexOfPhotosToDelete = [Int]()
     var numberOfPage = 2
@@ -29,6 +31,7 @@ class PhotosViewController: UIViewController{
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("início de viewDidLoad")
         self.mapView.isZoomEnabled = false
         self.mapView.isScrollEnabled = false
         self.mapView.isUserInteractionEnabled = false
@@ -40,7 +43,6 @@ class PhotosViewController: UIViewController{
         collectionView.delegate = self
         let space:CGFloat = 0.2
         let dimension = (view.frame.size.width - (2 * space)) / 3.0
-        
         flowLayout.minimumInteritemSpacing = space
         flowLayout.minimumLineSpacing = space
         flowLayout.itemSize = CGSize(width: dimension, height: dimension)
@@ -49,11 +51,66 @@ class PhotosViewController: UIViewController{
         
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        print("início de viewWillAppear")
+        
+        for i in 0..<imagesArray.count{
+            downloadImage(url: imagesArray[i].url) {(imageData, error) in
+                guard error == nil else{
+                    print("couldn't download data: \(error)")
+                    return
+                }
+                if let imageDataDownloaded = imageData{
+                self.imagesArray[i].imageData = UIImage(data: imageDataDownloaded)
+                    performUIUpdatesOnMain {
+                        self.collectionView.reloadData()
+                    }
+                }
+            }
+        }
+    }
+    
+    func downloadImage(url: String, _ completionHandlerOnImageDownloaded: @escaping (_ imageData: Data?, _ error: Error?) -> Void){
+        if let photoSquareURLstring = URL(string: url){
+            let task = URLSession.shared.dataTask(with: photoSquareURLstring) { (imageData, response, error) in
+                func displayError(_ error: String) {
+                    print(error)
+                    print("URL at time of error: \(url)")
+                    completionHandlerOnImageDownloaded(nil, error as? Error)
+                }
+                
+                /* GUARD: Was there an error? */
+                guard (error == nil) else {
+                    displayError("There was an error with your request: \(error)")
+                    return
+                }
+                
+                /* GUARD: Did we get a successful 2XX response? */
+                guard let statusCode = (response as? HTTPURLResponse)?.statusCode, statusCode >= 200 && statusCode <= 299 else {
+                    displayError("Your request returned a status code other than 2xx!")
+                    return
+                }
+                
+                /* GUARD: Was there any data returned? */
+                guard let imageData = imageData else {
+                    displayError("No data was returned by the request!")
+                    return
+                }
+                
+                completionHandlerOnImageDownloaded(imageData, nil)
+            }
+            task.resume()
+        }
+        
+        
+    }
     @IBAction func newCollectionButton(_ sender: Any) {
         if isOnDeleteMode{
             indexOfPhotosToDelete.sort { $0 > $1 }
             for index in indexOfPhotosToDelete{
-                photosURLArray.remove(at: index)
+                imagesArray.remove(at: index)
+//                downloadedImages.remove(at: index)
             }
             indexOfPhotosToDelete.removeAll()
             collectionView.reloadData()
@@ -62,11 +119,20 @@ class PhotosViewController: UIViewController{
             isOnDeleteMode = false
         }else{
             if let latitude = annotation?.coordinate.latitude, let longitude = annotation?.coordinate.longitude{
-                FlikrRequestManager.sharedInstance().getPhotos(latitude: latitude, longitude: longitude, numberOfPage: numberOfPage) { (success, photosURLarray, totalNumberOfPages, error) in
+                FlikrRequestManager.sharedInstance().getPhotos(latitude: latitude, longitude: longitude, numberOfPage: numberOfPage) { (success, imagesArray, totalNumberOfPages, error) in
                     if success{
-                        if let photosURLArray = photosURLarray{
-                            self.photosURLArray = photosURLArray
+                        self.imagesArray.removeAll()
+                        if let imagesArray = imagesArray {
+                            self.imagesArray = imagesArray
                             performUIUpdatesOnMain {
+                                for i in 0..<imagesArray.count{
+                                    if let photoSquareURLstring = URL(string:imagesArray[i].url){
+                                        if let imageData = try? Data(contentsOf: photoSquareURLstring) {
+                                            self.imagesArray[i].imageData = UIImage(data: imageData)
+                                        }
+                                    }
+                                }
+                                
                                 self.collectionView.reloadData()
                             }
                         }
@@ -96,7 +162,7 @@ class PhotosViewController: UIViewController{
     }
     
     @IBAction func okeyBackButton(_ sender: Any) {
-        photosURLArray.removeAll()
+        imagesArray.removeAll()
         let mapController = self.storyboard?.instantiateViewController(withIdentifier: "MapVC") as! MapViewController
         self.present(mapController, animated: true, completion: nil)
     }
@@ -122,16 +188,24 @@ extension PhotosViewController: UICollectionViewDelegate, UICollectionViewDataSo
     
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return photosURLArray.count
+        print("início de numberOfItemsInSection")
+        return imagesArray.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        print("início de cellForItem")
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! PhotoViewCell
-//        let photoUrlString = photosURLArray[indexPath.row]
-//        let photoSquareURLstring = URL(string: photoUrlString)
-//        if let imageData = try? Data(contentsOf: photoSquareURLstring!) {
-//            cell.photoImage.image = UIImage(data: imageData)
-//        }
+        if imagesArray[indexPath.item].imageData == nil{
+            print("MARCELA: image data está NIL")
+            
+            cell.activityIndicator.startAnimating()
+        }else{
+            cell.activityIndicator.stopAnimating()
+            cell.activityIndicator.hidesWhenStopped = true
+            print("MARCELA: image data nao está NIL")
+            
+            cell.photoImage.image = imagesArray[indexPath.item].imageData
+        }
         return cell
     }
     
