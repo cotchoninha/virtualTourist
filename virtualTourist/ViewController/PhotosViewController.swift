@@ -5,6 +5,7 @@
 //  Created by Marcela Ceneviva Auslenter on 02/08/2018.
 //  Copyright © 2018 Marcela Ceneviva Auslenter. All rights reserved.
 //
+//  quando eu clicar no pin ele abre as ultimas 21 imagens que estavam salvas na imagesArray
 
 import Foundation
 import UIKit
@@ -98,6 +99,11 @@ class PhotosViewController: UIViewController{
                     return
                 }
                 
+                let imageCoreData = Image(entity: Image.entity(), insertInto: DataBaseController.getContext())
+                imageCoreData.imageData = imageData
+                imageCoreData.url = url
+                DataBaseController.saveContext()
+                print("MARCELA: imageCoreData: \(imageCoreData)")
                 completionHandlerOnImageDownloaded(imageData, nil)
             }
             task.resume()
@@ -110,6 +116,8 @@ class PhotosViewController: UIViewController{
             indexOfPhotosToDelete.sort { $0 > $1 }
             for index in indexOfPhotosToDelete{
                 imagesArray.remove(at: index)
+                
+                
 //                downloadedImages.remove(at: index)
             }
             indexOfPhotosToDelete.removeAll()
@@ -118,6 +126,7 @@ class PhotosViewController: UIViewController{
             //precisa atualizar
             isOnDeleteMode = false
         }else{
+            //TODO: quando entra aqui ele nao ativa e desativa o activity indicator
             if let latitude = annotation?.coordinate.latitude, let longitude = annotation?.coordinate.longitude{
                 FlikrRequestManager.sharedInstance().getPhotos(latitude: latitude, longitude: longitude, numberOfPage: numberOfPage) { (success, imagesArray, totalNumberOfPages, error) in
                     if success{
@@ -126,14 +135,20 @@ class PhotosViewController: UIViewController{
                             self.imagesArray = imagesArray
                             performUIUpdatesOnMain {
                                 for i in 0..<imagesArray.count{
-                                    if let photoSquareURLstring = URL(string:imagesArray[i].url){
-                                        if let imageData = try? Data(contentsOf: photoSquareURLstring) {
-                                            self.imagesArray[i].imageData = UIImage(data: imageData)
+                                    self.downloadImage(url: imagesArray[i].url) {(imageData, error) in
+                                        guard error == nil else{
+                                            print("couldn't download data: \(error)")
+                                            return
+                                        }
+                                        if let imageDataDownloaded = imageData{
+                                            self.imagesArray[i].imageData = UIImage(data: imageDataDownloaded)
+                                            performUIUpdatesOnMain {
+//                                                self.collectionView.reloadItems(at: [IndexPath(arrayLiteral: i)])
+                                                self.collectionView.reloadData()
+                                            }
                                         }
                                     }
                                 }
-                                
-                                self.collectionView.reloadData()
                             }
                         }
                     }else{
