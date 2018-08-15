@@ -17,7 +17,7 @@ class PhotosViewController: UIViewController{
     var mapRegion: MKCoordinateRegion?
 //    var photosURLArray = [String]()
     var imagesArray = [ImageStruct]()
-//    var downloadedImages = [UIImage?]()
+    var downloadedImages = [UIImage?]()
     var isOnDeleteMode = false
     var indexOfPhotosToDelete = [Int]()
     var numberOfPage = 2
@@ -116,9 +116,7 @@ class PhotosViewController: UIViewController{
             indexOfPhotosToDelete.sort { $0 > $1 }
             for index in indexOfPhotosToDelete{
                 imagesArray.remove(at: index)
-                
-                
-//                downloadedImages.remove(at: index)
+                downloadedImages.remove(at: index)
             }
             indexOfPhotosToDelete.removeAll()
             collectionView.reloadData()
