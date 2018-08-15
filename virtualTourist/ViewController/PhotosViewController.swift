@@ -10,6 +10,7 @@
 import Foundation
 import UIKit
 import MapKit
+import CoreData
 
 class PhotosViewController: UIViewController{
     
@@ -22,6 +23,9 @@ class PhotosViewController: UIViewController{
     var indexOfPhotosToDelete = [Int]()
     var numberOfPage = 2
     var totalNumberOfPages: Int!
+    private var fetchedRC: NSFetchedResultsController<Image>!
+    var pin: Pin!
+
     
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
@@ -34,8 +38,6 @@ class PhotosViewController: UIViewController{
         super.viewDidLoad()
         print("início de viewDidLoad")
         
-        newCollectionButtonOutlet.isEnabled = false
-        
         self.mapView.isZoomEnabled = false
         self.mapView.isScrollEnabled = false
         self.mapView.isUserInteractionEnabled = false
@@ -44,6 +46,7 @@ class PhotosViewController: UIViewController{
             mapView.setRegion(region, animated: true)
         }
         //Collection Layout
+        //TODO: remover linha abaixo depois de testar com CollectionView
         collectionView.delegate = self
         let space:CGFloat = 0.2
         let dimension = (view.frame.size.width - (2 * space)) / 3.0
@@ -58,21 +61,39 @@ class PhotosViewController: UIViewController{
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         print("início de viewWillAppear")
-        
-        for i in 0..<imagesArray.count{
-            downloadImage(url: imagesArray[i].url) {(imageData, error) in
-                guard error == nil else{
-                    print("couldn't download data: \(error)")
-                    return
-                }
-                if let imageDataDownloaded = imageData{
-                    self.imagesArray[i].imageData = UIImage(data: imageDataDownloaded)
-                    performUIUpdatesOnMain {
-                        self.collectionView.reloadData()
-                    }
-                }
-            }
+        let request: NSFetchRequest<Image> = Image.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(key: #keyPath(Image.url), ascending: true)]
+        request.predicate = NSPredicate(format: "pin = %@", pin)
+        do {
+            fetchedRC = NSFetchedResultsController(fetchRequest: request, managedObjectContext: DataBaseController.getContext(), sectionNameKeyPath: nil, cacheName: nil)
+            try fetchedRC.performFetch()
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
         }
+        if let fetchedImages = fetchedRC.fetchedObjects{
+            if !fetchedImages.isEmpty{
+                //exibe as imagens na tela
+            }else{
+                //faz o fetch no Flickr
+            }
+            
+        }
+        
+        
+//        for i in 0..<imagesArray.count{
+//            downloadImage(url: imagesArray[i].url) {(imageData, error) in
+//                guard error == nil else{
+//                    print("couldn't download data: \(error)")
+//                    return
+//                }
+//                if let imageDataDownloaded = imageData{
+//                    self.imagesArray[i].imageData = UIImage(data: imageDataDownloaded)
+//                    performUIUpdatesOnMain {
+//                        self.collectionView.reloadData()
+//                    }
+//                }
+//            }
+//        }
     }
     
     func downloadImage(url: String, _ completionHandlerOnImageDownloaded: @escaping (_ imageData: Data?, _ error: Error?) -> Void){
@@ -206,23 +227,23 @@ extension PhotosViewController: UICollectionViewDelegate, UICollectionViewDataSo
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         print("início de numberOfItemsInSection")
-        return imagesArray.count
+        return fetchedRC.fetchedObjects?.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         print("início de cellForItem")
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! PhotoViewCell
-        if imagesArray[indexPath.item].imageData == nil{
-            print("MARCELA: image data está NIL")
-            
+//        if imagesArray[indexPath.item].imageData == nil{
+//            print("MARCELA: image data está NIL")
+//
             cell.activityIndicator.startAnimating()
-        }else{
-            cell.activityIndicator.stopAnimating()
-            cell.activityIndicator.hidesWhenStopped = true
-            print("MARCELA: image data nao está NIL")
-            
-            cell.photoImage.image = imagesArray[indexPath.item].imageData
-        }
+//        }else{
+//            cell.activityIndicator.stopAnimating()
+//            cell.activityIndicator.hidesWhenStopped = true
+//            print("MARCELA: image data nao está NIL")
+//
+//            cell.photoImage.image = imagesArray[indexPath.item].imageData
+//        }
         return cell
     }
     

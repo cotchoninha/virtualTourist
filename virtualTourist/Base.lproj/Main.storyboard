@@ -99,7 +99,7 @@
                                 <rect key="frame" x="0.0" y="692" width="414" height="44"/>
                                 <items>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="But-ox-FOA"/>
-                                    <barButtonItem title="New Collection" id="LY9-cx-wVd">
+                                    <barButtonItem enabled="NO" title="New Collection" id="LY9-cx-wVd">
                                         <connections>
                                             <action selector="getNewCollectionOfImages:" destination="D2z-5L-n0o" id="YV3-L3-TF8"/>
                                         </connections>
