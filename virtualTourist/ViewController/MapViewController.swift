@@ -132,29 +132,38 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
                     mapAnnotationDictionary[annotation as! MKPointAnnotation] = nil
                 }
             }else{
-                //faz o request pro flicker e troca a VC
                 UserDefaults.standard.set(mapView.centerCoordinate.latitude, forKey: "latitude")
                 UserDefaults.standard.set(mapView.centerCoordinate.longitude, forKey: "longitude")
                 UserDefaults.standard.set(mapView.region.span.latitudeDelta, forKey: "latitudeDelta")
                 UserDefaults.standard.set(mapView.region.span.longitudeDelta, forKey: "longitudeDelta")
-                FlikrRequestManager.sharedInstance().getPhotos(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude, numberOfPage: numberOfPage){(success, imagesArray, totalNumberOfPages, error) in
-                    performUIUpdatesOnMain {
-                        if success{
-                            let controller = self.storyboard?.instantiateViewController(withIdentifier: "PhotosVC") as! PhotosViewController
-                            controller.annotation = annotation as? MKPointAnnotation
-                            controller.mapRegion = self.mapView.region
-                            if let imagesArray = imagesArray {
-                                if let totalNumberOfPages = totalNumberOfPages{
-                                    controller.imagesArray = imagesArray
-                                    controller.totalNumberOfPages = totalNumberOfPages
-                                }
-                            }
-                            self.present(controller, animated: true, completion: nil)
-                        }else{
-                            //handle error
-                        }
-                    }
-                }
+                let controller = self.storyboard?.instantiateViewController(withIdentifier: "PhotosVC") as! PhotosViewController
+                controller.annotation = annotation as? MKPointAnnotation
+                controller.mapRegion = self.mapView.region
+                self.present(controller, animated: true, completion: nil)
+                
+                
+                
+                
+                
+                
+//                FlikrRequestManager.sharedInstance().getPhotos(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude, numberOfPage: numberOfPage){(success, imagesArray, totalNumberOfPages, error) in
+//                    performUIUpdatesOnMain {
+//                        if success{
+//                            let controller = self.storyboard?.instantiateViewController(withIdentifier: "PhotosVC") as! PhotosViewController
+//                            controller.annotation = annotation as? MKPointAnnotation
+//                            controller.mapRegion = self.mapView.region
+//                            if let imagesArray = imagesArray {
+//                                if let totalNumberOfPages = totalNumberOfPages{
+//                                    controller.imagesArray = imagesArray
+//                                    controller.totalNumberOfPages = totalNumberOfPages
+//                                }
+//                            }
+//                            self.present(controller, animated: true, completion: nil)
+//                        }else{
+//                            //handle error
+//                        }
+//                    }
+//                }
             }
         }
     }

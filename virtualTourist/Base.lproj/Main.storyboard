@@ -101,7 +101,7 @@
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="But-ox-FOA"/>
                                     <barButtonItem title="New Collection" id="LY9-cx-wVd">
                                         <connections>
-                                            <action selector="newCollectionButton:" destination="D2z-5L-n0o" id="YBR-ts-tP3"/>
+                                            <action selector="getNewCollectionOfImages:" destination="D2z-5L-n0o" id="YV3-L3-TF8"/>
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="fbY-PP-JdL"/>
@@ -165,10 +165,10 @@
                         <viewLayoutGuide key="safeArea" id="W9z-LR-nSm"/>
                     </view>
                     <connections>
-                        <outlet property="NewCollectionButtonOutlet" destination="LY9-cx-wVd" id="omY-tA-F17"/>
                         <outlet property="collectionView" destination="bY7-ED-UNV" id="Jh4-Qu-KAs"/>
                         <outlet property="flowLayout" destination="Ygo-bo-Yyq" id="kuP-IG-ekj"/>
                         <outlet property="mapView" destination="rG1-hW-vc7" id="P7r-i7-7Wu"/>
+                        <outlet property="newCollectionButtonOutlet" destination="LY9-cx-wVd" id="TvZ-Fo-CUa"/>
                         <outlet property="photoCollection" destination="bY7-ED-UNV" id="j01-Il-pgt"/>
                     </connections>
                 </viewController>
