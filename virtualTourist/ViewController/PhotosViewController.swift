@@ -25,7 +25,7 @@ class PhotosViewController: UIViewController{
     var totalNumberOfPages: Int!
     private var fetchedRC: NSFetchedResultsController<Image>!
     var pin: Pin!
-
+    
     
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
@@ -58,9 +58,7 @@ class PhotosViewController: UIViewController{
         
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        print("início de viewWillAppear")
+    fileprivate func getFetchedResultsController() {
         let request: NSFetchRequest<Image> = Image.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(key: #keyPath(Image.url), ascending: true)]
         request.predicate = NSPredicate(format: "pin = %@", pin)
@@ -70,6 +68,12 @@ class PhotosViewController: UIViewController{
         } catch let error as NSError {
             print("Could not fetch. \(error), \(error.userInfo)")
         }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        print("início de viewWillAppear")
+        getFetchedResultsController()
         if let fetchedImages = fetchedRC.fetchedObjects{
             if !fetchedImages.isEmpty{
                 collectionView.reloadData()
@@ -77,31 +81,46 @@ class PhotosViewController: UIViewController{
                 if let coordinates = annotation?.coordinate{
                     FlikrRequestManager.sharedInstance().getPhotos(latitude: coordinates.latitude, longitude: coordinates.longitude, numberOfPage: numberOfPage) { (success, imagesArray, totalNumberOfPages, error) in
                         //assim que eu sei quantos urls eu tenho eu chamo reloadData pra mostrar o activity indicator
-                        performUIUpdatesOnMain {
-                            self.collectionView.reloadData()
-                        }
+                        //                        performUIUpdatesOnMain {
+                        //                            self.collectionView.reloadData()
+                        //                        }
                         if success{
                             if let imagesArray = imagesArray {
                                 self.imagesArray = imagesArray
                                 for i in 0..<imagesArray.count{
-                                    print("MARCELA: IMAGES ARRAY INFO URL: \(imagesArray[i].url) count \(imagesArray.count)")
-//                                    let image = Image(context: DataBaseController.getContext())
-//                                    image.url = imagesArray[i].url
-//                                    self.downloadImage(url: imagesArray[i].url) {(imageData, error) in
-//                                        guard error == nil else{
-//                                            print("couldn't download data: \(error)")
-//                                            return
-//                                        }
-//                                        if let imageDataDownloaded = imageData{
-//                                            image.imageData = imageDataDownloaded
-//                                            self.imagesArray[i].imageData = UIImage(data: imageDataDownloaded)
-//                                            //                                                self.collectionView.reloadItems(at: [IndexPath(arrayLiteral: i)])
-//                                            performUIUpdatesOnMain {
-//                                                self.collectionView.reloadData()
-//                                            }
-//                                        }
-//                                    }
+                                    let image = Image(context: DataBaseController.getContext())
+                                    image.url = imagesArray[i].url
+                                    print("MARCELA: url do Image coreData: \(image.url!) count \(self.fetchedRC.fetchedObjects?.count)")
+                                    
+                                    image.pin = self.pin
                                 }
+                                print("MARCELA: terminou de criar os meus NSManagedObjects")
+                                
+                                DataBaseController.saveContext()
+                                
+                                self.getFetchedResultsController()
+                                print("MARCELA:fetchedRC count \(self.fetchedRC.fetchedObjects?.count)")
+                                performUIUpdatesOnMain {
+                                    print("MARCELA: vai chamar reloadData")
+                                    self.collectionView.reloadData()
+                                    print("MARCELA: chamou reloadData")
+                                    
+                                }
+                                
+                                //                                    self.downloadImage(url: imagesArray[i].url) {(imageData, error) in
+                                //                                        guard error == nil else{
+                                //                                            print("couldn't download data: \(error)")
+                                //                                            return
+                                //                                        }
+                                //                                        if let imageDataDownloaded = imageData{
+                                //                                            image.imageData = imageDataDownloaded
+                                //                                            self.imagesArray[i].imageData = UIImage(data: imageDataDownloaded)
+                                //                                            //                                                self.collectionView.reloadItems(at: [IndexPath(arrayLiteral: i)])
+                                //                                            performUIUpdatesOnMain {
+                                //                                                self.collectionView.reloadData()
+                                //                                            }
+                                //                                        }
+                                //                                    }
                             }
                         }
                     }
@@ -112,22 +131,22 @@ class PhotosViewController: UIViewController{
     
     
     
-        
-//        for i in 0..<imagesArray.count{
-//            downloadImage(url: imagesArray[i].url) {(imageData, error) in
-//                guard error == nil else{
-//                    print("couldn't download data: \(error)")
-//                    return
-//                }
-//                if let imageDataDownloaded = imageData{
-//                    self.imagesArray[i].imageData = UIImage(data: imageDataDownloaded)
-//                    performUIUpdatesOnMain {
-//                        self.collectionView.reloadData()
-//                    }
-//                }
-//            }
-//        }
-
+    
+    //        for i in 0..<imagesArray.count{
+    //            downloadImage(url: imagesArray[i].url) {(imageData, error) in
+    //                guard error == nil else{
+    //                    print("couldn't download data: \(error)")
+    //                    return
+    //                }
+    //                if let imageDataDownloaded = imageData{
+    //                    self.imagesArray[i].imageData = UIImage(data: imageDataDownloaded)
+    //                    performUIUpdatesOnMain {
+    //                        self.collectionView.reloadData()
+    //                    }
+    //                }
+    //            }
+    //        }
+    
     
     func downloadImage(url: String, _ completionHandlerOnImageDownloaded: @escaping (_ imageData: Data?, _ error: Error?) -> Void){
         if let photoSquareURLstring = URL(string: url){
@@ -267,17 +286,17 @@ extension PhotosViewController: UICollectionViewDelegate, UICollectionViewDataSo
         print("início de cellForItem")
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! PhotoViewCell
         if fetchedRC.object(at: indexPath).imageData == nil{
-//            print("MARCELA: image data está NIL")
-//
+            //            print("MARCELA: image data está NIL")
+            //        if imagesArray[indexPath.item].imageData == nil{
             cell.activityIndicator.startAnimating()
         }else{
             cell.activityIndicator.stopAnimating()
             cell.activityIndicator.hidesWhenStopped = true
-//            print("MARCELA: image data nao está NIL")
+            //            print("MARCELA: image data nao está NIL")
             
-            if let imageData = fetchedRC.object(at: indexPath).imageData{
-            cell.photoImage.image = UIImage(data: imageData)
-            }
+            //            if let imageData = fetchedRC.object(at: indexPath).imageData{
+            //            cell.photoImage.image = UIImage(data: imageData)
+            //            }
         }
         return cell
     }
