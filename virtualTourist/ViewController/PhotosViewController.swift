@@ -16,7 +16,6 @@ class PhotosViewController: UIViewController{
     
     var annotation: MKPointAnnotation?
     var mapRegion: MKCoordinateRegion?
-    //    var photosURLArray = [String]()
     var imagesArray = [ImageStruct]()
     var downloadedImages = [UIImage?]()
     var isOnDeleteMode = false
@@ -58,7 +57,7 @@ class PhotosViewController: UIViewController{
         
     }
     
-    fileprivate func getFetchedResultsController() {
+    fileprivate func fetchImagesInDB() {
         let request: NSFetchRequest<Image> = Image.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(key: #keyPath(Image.url), ascending: true)]
         request.predicate = NSPredicate(format: "pin = %@", pin)
@@ -73,54 +72,53 @@ class PhotosViewController: UIViewController{
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         print("início de viewWillAppear")
-        getFetchedResultsController()
+        fetchImagesInDB()
         if let fetchedImages = fetchedRC.fetchedObjects{
             if !fetchedImages.isEmpty{
                 collectionView.reloadData()
             }else{
                 if let coordinates = annotation?.coordinate{
                     FlikrRequestManager.sharedInstance().getPhotos(latitude: coordinates.latitude, longitude: coordinates.longitude, numberOfPage: numberOfPage) { (success, imagesArray, totalNumberOfPages, error) in
-                        //assim que eu sei quantos urls eu tenho eu chamo reloadData pra mostrar o activity indicator
-                        //                        performUIUpdatesOnMain {
-                        //                            self.collectionView.reloadData()
-                        //                        }
                         if success{
+                            
                             if let imagesArray = imagesArray {
-                                self.imagesArray = imagesArray
                                 for i in 0..<imagesArray.count{
+                                    //criar o MO e salvar os attributes url e pin
                                     let image = Image(context: DataBaseController.getContext())
                                     image.url = imagesArray[i].url
-                                    print("MARCELA: url do Image coreData: \(image.url!) count \(self.fetchedRC.fetchedObjects?.count)")
-                                    
                                     image.pin = self.pin
                                 }
-                                print("MARCELA: terminou de criar os meus NSManagedObjects")
-                                
+                                //salva no DB
                                 DataBaseController.saveContext()
+                                //pega novamente as imagens com URL, pin e imageData = nil
+                                self.fetchImagesInDB()
                                 
-                                self.getFetchedResultsController()
-                                print("MARCELA:fetchedRC count \(self.fetchedRC.fetchedObjects?.count)")
+                                //atualiza a collection view para aparecerem os activity indicators
                                 performUIUpdatesOnMain {
-                                    print("MARCELA: vai chamar reloadData")
                                     self.collectionView.reloadData()
-                                    print("MARCELA: chamou reloadData")
-                                    
                                 }
                                 
-                                //                                    self.downloadImage(url: imagesArray[i].url) {(imageData, error) in
-                                //                                        guard error == nil else{
-                                //                                            print("couldn't download data: \(error)")
-                                //                                            return
-                                //                                        }
-                                //                                        if let imageDataDownloaded = imageData{
-                                //                                            image.imageData = imageDataDownloaded
-                                //                                            self.imagesArray[i].imageData = UIImage(data: imageDataDownloaded)
-                                //                                            //                                                self.collectionView.reloadItems(at: [IndexPath(arrayLiteral: i)])
-                                //                                            performUIUpdatesOnMain {
-                                //                                                self.collectionView.reloadData()
-                                //                                            }
-                                //                                        }
-                                //                                    }
+                                
+                                if let fetchedImagesinRC = self.fetchedRC.fetchedObjects{
+                                    //pra cada item dentro do result controller, pega a URL, faz o download e salva no objeto do DB
+                                    for item in fetchedImagesinRC{
+                                        if let url = item.url{
+                                            self.downloadImage(url: url) {(imageData, error) in
+                                                guard error == nil else{
+                                                    print("couldn't download data: \(error)")
+                                                    return
+                                                }
+                                                if let imageDataDownloaded = imageData{
+                                                    item.imageData = imageDataDownloaded
+                                                }
+                                                DataBaseController.saveContext()
+                                                performUIUpdatesOnMain {
+                                                    self.collectionView.reloadData()
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -128,24 +126,6 @@ class PhotosViewController: UIViewController{
             }
         }
     }
-    
-    
-    
-    
-    //        for i in 0..<imagesArray.count{
-    //            downloadImage(url: imagesArray[i].url) {(imageData, error) in
-    //                guard error == nil else{
-    //                    print("couldn't download data: \(error)")
-    //                    return
-    //                }
-    //                if let imageDataDownloaded = imageData{
-    //                    self.imagesArray[i].imageData = UIImage(data: imageDataDownloaded)
-    //                    performUIUpdatesOnMain {
-    //                        self.collectionView.reloadData()
-    //                    }
-    //                }
-    //            }
-    //        }
     
     
     func downloadImage(url: String, _ completionHandlerOnImageDownloaded: @escaping (_ imageData: Data?, _ error: Error?) -> Void){
@@ -175,11 +155,6 @@ class PhotosViewController: UIViewController{
                     return
                 }
                 
-                let imageCoreData = Image(entity: Image.entity(), insertInto: DataBaseController.getContext())
-                imageCoreData.imageData = imageData
-                imageCoreData.url = url
-                DataBaseController.saveContext()
-                print("MARCELA: imageCoreData: \(imageCoreData)")
                 completionHandlerOnImageDownloaded(imageData, nil)
             }
             task.resume()
@@ -208,6 +183,7 @@ class PhotosViewController: UIViewController{
                         self.imagesArray.removeAll()
                         if let imagesArray = imagesArray {
                             self.imagesArray = imagesArray
+                            
                             performUIUpdatesOnMain {
                                 for i in 0..<imagesArray.count{
                                     self.downloadImage(url: imagesArray[i].url) {(imageData, error) in
@@ -218,7 +194,6 @@ class PhotosViewController: UIViewController{
                                         if let imageDataDownloaded = imageData{
                                             self.imagesArray[i].imageData = UIImage(data: imageDataDownloaded)
                                             performUIUpdatesOnMain {
-                                                //                                                self.collectionView.reloadItems(at: [IndexPath(arrayLiteral: i)])
                                                 self.collectionView.reloadData()
                                             }
                                         }
@@ -286,17 +261,14 @@ extension PhotosViewController: UICollectionViewDelegate, UICollectionViewDataSo
         print("início de cellForItem")
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! PhotoViewCell
         if fetchedRC.object(at: indexPath).imageData == nil{
-            //            print("MARCELA: image data está NIL")
-            //        if imagesArray[indexPath.item].imageData == nil{
             cell.activityIndicator.startAnimating()
         }else{
             cell.activityIndicator.stopAnimating()
             cell.activityIndicator.hidesWhenStopped = true
-            //            print("MARCELA: image data nao está NIL")
-            
-            //            if let imageData = fetchedRC.object(at: indexPath).imageData{
-            //            cell.photoImage.image = UIImage(data: imageData)
-            //            }
+
+            if let imageData = fetchedRC.object(at: indexPath).imageData{
+                cell.photoImage.image = UIImage(data: imageData)
+            }
         }
         return cell
     }
