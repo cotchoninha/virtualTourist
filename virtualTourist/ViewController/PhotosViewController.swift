@@ -72,13 +72,46 @@ class PhotosViewController: UIViewController{
         }
         if let fetchedImages = fetchedRC.fetchedObjects{
             if !fetchedImages.isEmpty{
-                //exibe as imagens na tela
+                collectionView.reloadData()
             }else{
-                //faz o fetch no Flickr
+                if let coordinates = annotation?.coordinate{
+                    FlikrRequestManager.sharedInstance().getPhotos(latitude: coordinates.latitude, longitude: coordinates.longitude, numberOfPage: numberOfPage) { (success, imagesArray, totalNumberOfPages, error) in
+                        //assim que eu sei quantos urls eu tenho eu chamo reloadData pra mostrar o activity indicator
+                        performUIUpdatesOnMain {
+                            self.collectionView.reloadData()
+                        }
+                        if success{
+                            if let imagesArray = imagesArray {
+                                self.imagesArray = imagesArray
+                                for i in 0..<imagesArray.count{
+                                    print("MARCELA: IMAGES ARRAY INFO URL: \(imagesArray[i].url) count \(imagesArray.count)")
+//                                    let image = Image(context: DataBaseController.getContext())
+//                                    image.url = imagesArray[i].url
+//                                    self.downloadImage(url: imagesArray[i].url) {(imageData, error) in
+//                                        guard error == nil else{
+//                                            print("couldn't download data: \(error)")
+//                                            return
+//                                        }
+//                                        if let imageDataDownloaded = imageData{
+//                                            image.imageData = imageDataDownloaded
+//                                            self.imagesArray[i].imageData = UIImage(data: imageDataDownloaded)
+//                                            //                                                self.collectionView.reloadItems(at: [IndexPath(arrayLiteral: i)])
+//                                            performUIUpdatesOnMain {
+//                                                self.collectionView.reloadData()
+//                                            }
+//                                        }
+//                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            
         }
-        
+    }
+    
+    
+    
         
 //        for i in 0..<imagesArray.count{
 //            downloadImage(url: imagesArray[i].url) {(imageData, error) in
@@ -94,7 +127,7 @@ class PhotosViewController: UIViewController{
 //                }
 //            }
 //        }
-    }
+
     
     func downloadImage(url: String, _ completionHandlerOnImageDownloaded: @escaping (_ imageData: Data?, _ error: Error?) -> Void){
         if let photoSquareURLstring = URL(string: url){
@@ -233,17 +266,19 @@ extension PhotosViewController: UICollectionViewDelegate, UICollectionViewDataSo
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         print("início de cellForItem")
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! PhotoViewCell
-//        if imagesArray[indexPath.item].imageData == nil{
+        if fetchedRC.object(at: indexPath).imageData == nil{
 //            print("MARCELA: image data está NIL")
 //
             cell.activityIndicator.startAnimating()
-//        }else{
-//            cell.activityIndicator.stopAnimating()
-//            cell.activityIndicator.hidesWhenStopped = true
+        }else{
+            cell.activityIndicator.stopAnimating()
+            cell.activityIndicator.hidesWhenStopped = true
 //            print("MARCELA: image data nao está NIL")
-//
-//            cell.photoImage.image = imagesArray[indexPath.item].imageData
-//        }
+            
+            if let imageData = fetchedRC.object(at: indexPath).imageData{
+            cell.photoImage.image = UIImage(data: imageData)
+            }
+        }
         return cell
     }
     
