@@ -97,28 +97,6 @@ class PhotosViewController: UIViewController{
                                 performUIUpdatesOnMain {
                                     self.collectionView.reloadData()
                                 }
-                                
-                                
-                                if let fetchedImagesinRC = self.fetchedRC.fetchedObjects{
-                                    //pra cada item dentro do result controller, pega a URL, faz o download e salva no objeto do DB
-                                    for item in fetchedImagesinRC{
-                                        if let url = item.url{
-                                            self.downloadImage(url: url) {(imageData, error) in
-                                                guard error == nil else{
-                                                    print("couldn't download data: \(error)")
-                                                    return
-                                                }
-                                                if let imageDataDownloaded = imageData{
-                                                    item.imageData = imageDataDownloaded
-                                                }
-                                                DataBaseController.saveContext()
-                                                performUIUpdatesOnMain {
-                                                    self.collectionView.reloadData()
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
                             }
                         }
                     }
@@ -260,8 +238,25 @@ extension PhotosViewController: UICollectionViewDelegate, UICollectionViewDataSo
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         print("início de cellForItem")
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! PhotoViewCell
-        if fetchedRC.object(at: indexPath).imageData == nil{
+        let fetchedObject = fetchedRC.object(at: indexPath)
+        if fetchedObject.imageData == nil{
             cell.activityIndicator.startAnimating()
+            
+            if let url = fetchedObject.url{
+                self.downloadImage(url: url) {(imageData, error) in
+                    guard error == nil else{
+                        print("couldn't download data: \(error)")
+                        return
+                    }
+                    if let imageDataDownloaded = imageData{
+                        fetchedObject.imageData = imageDataDownloaded
+                    }
+                    DataBaseController.saveContext()
+                    performUIUpdatesOnMain {
+                        collectionView.reloadItems(at: [indexPath])
+                    }
+                }
+            }
         }else{
             cell.activityIndicator.stopAnimating()
             cell.activityIndicator.hidesWhenStopped = true
