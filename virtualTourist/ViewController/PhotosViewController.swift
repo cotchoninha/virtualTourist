@@ -98,7 +98,9 @@ class PhotosViewController: UIViewController{
                                         self.collectionView.reloadData()
                                     }
                                 }else{
+                                    performUIUpdatesOnMain {
                                     self.createNoImagesLabel()
+                                    }
                                 }
                             }
                         }
