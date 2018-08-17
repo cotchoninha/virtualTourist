@@ -80,22 +80,25 @@ class PhotosViewController: UIViewController{
                 if let coordinates = annotation?.coordinate{
                     FlikrRequestManager.sharedInstance().getPhotos(latitude: coordinates.latitude, longitude: coordinates.longitude, numberOfPage: numberOfPage) { (success, imagesArray, totalNumberOfPages, error) in
                         if success{
-                            
                             if let imagesArray = imagesArray {
-                                for i in 0..<imagesArray.count{
-                                    //criar o MO e salvar os attributes url e pin
-                                    let image = Image(context: DataBaseController.getContext())
-                                    image.url = imagesArray[i].url
-                                    image.pin = self.pin
-                                }
-                                //salva no DB
-                                DataBaseController.saveContext()
-                                //pega novamente as imagens com URL, pin e imageData = nil
-                                self.fetchImagesInDB()
-                                
-                                //atualiza a collection view para aparecerem os activity indicators
-                                performUIUpdatesOnMain {
-                                    self.collectionView.reloadData()
+                                if imagesArray.count != 0{
+                                    for i in 0..<imagesArray.count{
+                                        //criar o MO e salvar os attributes url e pin
+                                        let image = Image(context: DataBaseController.getContext())
+                                        image.url = imagesArray[i].url
+                                        image.pin = self.pin
+                                    }
+                                    //salva no DB
+                                    DataBaseController.saveContext()
+                                    //pega novamente as imagens com URL, pin e imageData = nil
+                                    self.fetchImagesInDB()
+                                    
+                                    //atualiza a collection view para aparecerem os activity indicators
+                                    performUIUpdatesOnMain {
+                                        self.collectionView.reloadData()
+                                    }
+                                }else{
+                                    self.createNoImagesLabel()
                                 }
                             }
                         }
@@ -139,6 +142,19 @@ class PhotosViewController: UIViewController{
         }
         
         
+    }
+    
+    fileprivate func createNoImagesLabel() {
+        collectionView.isHidden = true
+        let label = UILabel()
+        label.frame = CGRect(x: 0, y: 526, width: self.view.frame.width, height: 50)
+        label.text = "This pin has no images."
+        label.textAlignment = .center
+        label.textColor = UIColor.black
+        label.backgroundColor = UIColor.white
+        label.font = UIFont(name: "Arial", size: 26)
+        self.view.addSubview(label)
+        newCollectionButtonOutlet.isEnabled = false
     }
     
     @IBAction func getNewCollectionOfImages(_ sender: Any) {
@@ -188,16 +204,7 @@ class PhotosViewController: UIViewController{
                 numberOfPage += 1
                 print("Marcela: \(numberOfPage)")
             }else if numberOfPage > totalNumberOfPages{
-                collectionView.isHidden = true
-                let label = UILabel()
-                label.frame = CGRect(x: 0, y: 526, width: self.view.frame.width, height: 50)
-                label.text = "This pin has no images."
-                label.textAlignment = .center
-                label.textColor = UIColor.black
-                label.backgroundColor = UIColor.white
-                label.font = UIFont(name: "Arial", size: 26)
-                self.view.addSubview(label)
-                newCollectionButtonOutlet.isEnabled = false
+                createNoImagesLabel()
                 
                 //quando passar o numero total de paginas ele tem que parar de fazer o
             }
