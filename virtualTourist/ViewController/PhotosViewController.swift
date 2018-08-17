@@ -257,6 +257,7 @@ extension PhotosViewController: UICollectionViewDelegate, UICollectionViewDataSo
                     }
                 }
             }
+            newCollectionButtonOutlet.isEnabled = true
         }else{
             cell.activityIndicator.stopAnimating()
             cell.activityIndicator.hidesWhenStopped = true
