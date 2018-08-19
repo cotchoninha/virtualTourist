@@ -35,7 +35,7 @@ class PhotosViewController: UIViewController{
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("início de viewDidLoad")
+        print("MARCELA início de viewDidLoad")
         
         self.mapView.isZoomEnabled = false
         self.mapView.isScrollEnabled = false
@@ -71,7 +71,7 @@ class PhotosViewController: UIViewController{
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print("início de viewWillAppear")
+        print("MARCELA início de viewWillAppear")
         fetchImagesInDB()
         if let fetchedImages = fetchedRC.fetchedObjects{
             if !fetchedImages.isEmpty{
@@ -160,29 +160,18 @@ class PhotosViewController: UIViewController{
         self.view.addSubview(label)
         newCollectionButtonOutlet.isEnabled = false
     }
+    
+    
     func resetAllRecords(){
         if let objects = fetchedRC.fetchedObjects{
             for object in objects {
                 DataBaseController.getContext().delete(object)
             }
-            
+            DataBaseController.saveContext()
+            fetchImagesInDB()
+            print("MARCELA: FETCHRC.COUNT DENTRO DE resetAllRecords = \(fetchedRC.fetchedObjects?.count)")
+            collectionView.reloadData()
         }
-        
-        //        let deleteRequest: NSFetchRequest<Image> = Image.fetchRequest()
-        //        deleteRequest.predicate = NSPredicate(format: "pin = %@", pin)
-        //        //apagar apenas as fotos relativas ao pin
-        //        do
-        //        {
-        //            if let result = try? DataBaseController.getContext().fetch(deleteRequest) {
-        //                for object in result {
-        //                    DataBaseController.getContext().delete(object)
-        //                }
-        //            }
-        //            DataBaseController.saveContext()
-        //            print("MARCELA: DELETED ALL DATA FROM ENTITY")
-        //        }catch{
-        //            print ("Could not delete all data from entity")
-        //        }
     }
     
     @IBAction func getNewCollectionOfImages(_ sender: Any) {
@@ -200,8 +189,9 @@ class PhotosViewController: UIViewController{
             isOnDeleteMode = false
         }else{
             if totalNumberOfPages == nil || numberOfThePage <= totalNumberOfPages!{
+//                let deleteIndexPath = IndexPath(item: ((fetchedRC.fetchedObjects?.count)! - 1), section: 0)
+//                collectionView.deleteItems(at: [deleteIndexPath])
                 resetAllRecords()
-                
                 if let latitude = annotation?.coordinate.latitude, let longitude = annotation?.coordinate.longitude{
                     FlikrRequestManager.sharedInstance().getPhotos(latitude: latitude, longitude: longitude, numberOfPage: numberOfThePage) { (success, imagesArray, totalNumberOfPages, error) in
                         if success{
@@ -219,7 +209,7 @@ class PhotosViewController: UIViewController{
                                     DataBaseController.saveContext()
                                     //pega novamente as imagens com URL, pin e imageData = nil
                                     self.fetchImagesInDB()
-                                    
+
                                     //atualiza a collection view para aparecerem os activity indicators
                                     performUIUpdatesOnMain {
                                         self.collectionView.reloadData()
@@ -270,30 +260,36 @@ extension PhotosViewController: UICollectionViewDelegate, UICollectionViewDataSo
     
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        print("início de numberOfItemsInSection")
+        print("MARCELA: numberOfItemsInSection FETCHRC.COUNT = \(fetchedRC.fetchedObjects?.count)")
         return fetchedRC.fetchedObjects?.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        print("início de cellForItem")
+        print("MARCELA início de cellForItem")
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! PhotoViewCell
+       
         let fetchedObject = fetchedRC.object(at: indexPath)
+        
         if fetchedObject.imageData == nil{
-            
+            print("MARCELA fetchedObject.imageData == nil")
+            cell.photoImage.image = nil
             cell.activityIndicator.startAnimating()
-            
             if let url = fetchedObject.url{
+                print("MARCELA inicio download da imagem")
                 self.downloadImage(url: url) {(imageData, error) in
                     guard error == nil else{
-                        print("couldn't download data: \(error)")
+                        print("MARCELA couldn't download data: \(error)")
                         return
                     }
+                    print("MARCELA fim download da imagem")
                     if let imageDataDownloaded = imageData{
                         fetchedObject.imageData = imageDataDownloaded
                     }
                     DataBaseController.saveContext()
+                    print("MARCELA atualiza DB")
                     performUIUpdatesOnMain {
                         collectionView.reloadItems(at: [indexPath])
+                        print("MARCELA reload collectionView ")
                     }
                 }
             }
@@ -303,18 +299,13 @@ extension PhotosViewController: UICollectionViewDelegate, UICollectionViewDataSo
             cell.activityIndicator.hidesWhenStopped = true
             
             if let imageData = fetchedRC.object(at: indexPath).imageData{
+                print("MARCELA exibe imagem do MnagedObject")
                 cell.photoImage.image = UIImage(data: imageData)
             }
             newCollectionButtonOutlet.isEnabled = true
         }
         
         return cell
-    }
-    
-    func deleteCells(cell: PhotoViewCell){
-        if let indexPath = collectionView.indexPath(for: cell){
-            collectionView.deleteItems(at: [indexPath])
-        }
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

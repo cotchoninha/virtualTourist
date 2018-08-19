@@ -54,8 +54,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         } catch {
             print("Fetch failed")
         }
-        //        print("MARCELA DICTIONARY: \(mapAnnotationDictionary)")
-        
         
         let uilgr = UILongPressGestureRecognizer(target: self, action: #selector(addPin(gestureRecognizer:)))
         uilgr.minimumPressDuration = 1.0
