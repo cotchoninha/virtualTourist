@@ -78,6 +78,7 @@ class FlikrRequestManager: NSObject{
                 displayError("Cannot find keys '\(Constants.FlickrResponseKeys.Photos)' and '\(Constants.FlickrResponseKeys.Photo)' in \(parsedResult)")
                 return
             }
+            print("MARCELA NUMBER OF PAGES: \(totalNumberOfPages)")
            
             //use photos inside photoArray
             var imagesArray = [ImageStruct]()

@@ -20,8 +20,8 @@ class PhotosViewController: UIViewController{
     var downloadedImages = [UIImage?]()
     var isOnDeleteMode = false
     var indexOfPhotosToDelete = [Int]()
-    var numberOfPage = 2
-    var totalNumberOfPages: Int!
+    var numberOfThePage = 1
+    var totalNumberOfPages: Int?
     private var fetchedRC: NSFetchedResultsController<Image>!
     var pin: Pin!
     
@@ -78,8 +78,10 @@ class PhotosViewController: UIViewController{
                 collectionView.reloadData()
             }else{
                 if let coordinates = annotation?.coordinate{
-                    FlikrRequestManager.sharedInstance().getPhotos(latitude: coordinates.latitude, longitude: coordinates.longitude, numberOfPage: numberOfPage) { (success, imagesArray, totalNumberOfPages, error) in
+                    FlikrRequestManager.sharedInstance().getPhotos(latitude: coordinates.latitude, longitude: coordinates.longitude, numberOfPage: numberOfThePage) { (success, imagesArray, totalNumberOfPages, error) in
                         if success{
+                            self.totalNumberOfPages = totalNumberOfPages
+                            self.numberOfThePage += 1
                             if let imagesArray = imagesArray {
                                 if imagesArray.count != 0{
                                     for i in 0..<imagesArray.count{
@@ -99,7 +101,7 @@ class PhotosViewController: UIViewController{
                                     }
                                 }else{
                                     performUIUpdatesOnMain {
-                                    self.createNoImagesLabel()
+                                        self.createNoImagesLabel()
                                     }
                                 }
                             }
@@ -158,8 +160,33 @@ class PhotosViewController: UIViewController{
         self.view.addSubview(label)
         newCollectionButtonOutlet.isEnabled = false
     }
+    func resetAllRecords(){
+        if let objects = fetchedRC.fetchedObjects{
+            for object in objects {
+                DataBaseController.getContext().delete(object)
+            }
+            
+        }
+        
+        //        let deleteRequest: NSFetchRequest<Image> = Image.fetchRequest()
+        //        deleteRequest.predicate = NSPredicate(format: "pin = %@", pin)
+        //        //apagar apenas as fotos relativas ao pin
+        //        do
+        //        {
+        //            if let result = try? DataBaseController.getContext().fetch(deleteRequest) {
+        //                for object in result {
+        //                    DataBaseController.getContext().delete(object)
+        //                }
+        //            }
+        //            DataBaseController.saveContext()
+        //            print("MARCELA: DELETED ALL DATA FROM ENTITY")
+        //        }catch{
+        //            print ("Could not delete all data from entity")
+        //        }
+    }
     
     @IBAction func getNewCollectionOfImages(_ sender: Any) {
+        newCollectionButtonOutlet.isEnabled = false
         if isOnDeleteMode{
             indexOfPhotosToDelete.sort { $0 > $1 }
             for index in indexOfPhotosToDelete{
@@ -172,43 +199,46 @@ class PhotosViewController: UIViewController{
             //precisa atualizar
             isOnDeleteMode = false
         }else{
-            //TODO: quando entra aqui ele nao ativa e desativa o activity indicator
-            if let latitude = annotation?.coordinate.latitude, let longitude = annotation?.coordinate.longitude{
-                FlikrRequestManager.sharedInstance().getPhotos(latitude: latitude, longitude: longitude, numberOfPage: numberOfPage) { (success, imagesArray, totalNumberOfPages, error) in
-                    if success{
-                        self.imagesArray.removeAll()
-                        if let imagesArray = imagesArray {
-                            self.imagesArray = imagesArray
-                            
-                            performUIUpdatesOnMain {
-                                for i in 0..<imagesArray.count{
-                                    self.downloadImage(url: imagesArray[i].url) {(imageData, error) in
-                                        guard error == nil else{
-                                            print("couldn't download data: \(error)")
-                                            return
-                                        }
-                                        if let imageDataDownloaded = imageData{
-                                            self.imagesArray[i].imageData = UIImage(data: imageDataDownloaded)
-                                            performUIUpdatesOnMain {
-                                                self.collectionView.reloadData()
-                                            }
-                                        }
+            if totalNumberOfPages == nil || numberOfThePage <= totalNumberOfPages!{
+                resetAllRecords()
+                
+                if let latitude = annotation?.coordinate.latitude, let longitude = annotation?.coordinate.longitude{
+                    FlikrRequestManager.sharedInstance().getPhotos(latitude: latitude, longitude: longitude, numberOfPage: numberOfThePage) { (success, imagesArray, totalNumberOfPages, error) in
+                        if success{
+                            self.totalNumberOfPages = totalNumberOfPages
+                            self.numberOfThePage += 1
+                            if let imagesArray = imagesArray {
+                                if imagesArray.count != 0{
+                                    for i in 0..<imagesArray.count{
+                                        //criar o MO e salvar os attributes url e pin
+                                        let image = Image(context: DataBaseController.getContext())
+                                        image.url = imagesArray[i].url
+                                        image.pin = self.pin
+                                    }
+                                    //salva no DB
+                                    DataBaseController.saveContext()
+                                    //pega novamente as imagens com URL, pin e imageData = nil
+                                    self.fetchImagesInDB()
+                                    
+                                    //atualiza a collection view para aparecerem os activity indicators
+                                    performUIUpdatesOnMain {
+                                        self.collectionView.reloadData()
+                                    }
+                                }else{
+                                    performUIUpdatesOnMain {
+                                        self.createNoImagesLabel()
                                     }
                                 }
                             }
+                        }else{
+                            //handle error
                         }
-                    }else{
-                        //handle error
                     }
                 }
-            }
-            if numberOfPage <= totalNumberOfPages{
-                numberOfPage += 1
-                print("Marcela: \(numberOfPage)")
-            }else if numberOfPage > totalNumberOfPages{
-                createNoImagesLabel()
-                
-                //quando passar o numero total de paginas ele tem que parar de fazer o
+            }else{
+                //remover todas as imagens e chamar reloadData()
+                self.createNoImagesLabel()
+                //mostro a label no images
             }
         }
     }
@@ -249,6 +279,7 @@ extension PhotosViewController: UICollectionViewDelegate, UICollectionViewDataSo
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! PhotoViewCell
         let fetchedObject = fetchedRC.object(at: indexPath)
         if fetchedObject.imageData == nil{
+            
             cell.activityIndicator.startAnimating()
             
             if let url = fetchedObject.url{
@@ -270,12 +301,20 @@ extension PhotosViewController: UICollectionViewDelegate, UICollectionViewDataSo
         }else{
             cell.activityIndicator.stopAnimating()
             cell.activityIndicator.hidesWhenStopped = true
-
+            
             if let imageData = fetchedRC.object(at: indexPath).imageData{
                 cell.photoImage.image = UIImage(data: imageData)
             }
+            newCollectionButtonOutlet.isEnabled = true
         }
+        
         return cell
+    }
+    
+    func deleteCells(cell: PhotoViewCell){
+        if let indexPath = collectionView.indexPath(for: cell){
+            collectionView.deleteItems(at: [indexPath])
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
