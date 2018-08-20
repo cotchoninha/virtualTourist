@@ -19,7 +19,7 @@ class PhotosViewController: UIViewController{
     var imagesArray = [ImageStruct]()
     var downloadedImages = [UIImage?]()
     var isOnDeleteMode = false
-    var indexOfPhotosToDelete = [Int]()
+    var indexOfPhotosToDelete = [IndexPath]()
     var numberOfThePage = 1
     var totalNumberOfPages: Int?
     private var fetchedRC: NSFetchedResultsController<Image>!
@@ -28,7 +28,7 @@ class PhotosViewController: UIViewController{
     
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
-    @IBOutlet weak var newCollectionButtonOutlet: UIBarButtonItem!
+    @IBOutlet weak var newCollectionButton: UIBarButtonItem!
     @IBOutlet weak var photoCollection: UICollectionView!
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     
@@ -158,7 +158,7 @@ class PhotosViewController: UIViewController{
         label.backgroundColor = UIColor.white
         label.font = UIFont(name: "Arial", size: 26)
         self.view.addSubview(label)
-        newCollectionButtonOutlet.isEnabled = false
+        newCollectionButton.isEnabled = false
     }
     
     
@@ -175,17 +175,21 @@ class PhotosViewController: UIViewController{
     }
     
     @IBAction func getNewCollectionOfImages(_ sender: Any) {
-        newCollectionButtonOutlet.isEnabled = false
+        newCollectionButton.isEnabled = false
         if isOnDeleteMode{
-            indexOfPhotosToDelete.sort { $0 > $1 }
-            for index in indexOfPhotosToDelete{
-                imagesArray.remove(at: index)
-                downloadedImages.remove(at: index)
+            if let selectedItems = collectionView.indexPathsForSelectedItems{
+                let reversedIndexes = selectedItems.sorted().reversed()
+                for index in reversedIndexes{
+                    let objectToDelete = fetchedRC.object(at: index)
+                    DataBaseController.getContext().delete(objectToDelete)
+                }
+                DataBaseController.saveContext()
+                fetchImagesInDB()
+                collectionView.deleteItems(at: selectedItems)
             }
             indexOfPhotosToDelete.removeAll()
-            collectionView.reloadData()
-            newCollectionButtonOutlet.title = "New Collection"
-            //precisa atualizar
+            newCollectionButton.title = "New Collection"
+            newCollectionButton.isEnabled = true
             isOnDeleteMode = false
         }else{
             if totalNumberOfPages == nil || numberOfThePage <= totalNumberOfPages!{
@@ -293,7 +297,6 @@ extension PhotosViewController: UICollectionViewDelegate, UICollectionViewDataSo
                     }
                 }
             }
-            newCollectionButtonOutlet.isEnabled = true
         }else{
             cell.activityIndicator.stopAnimating()
             cell.activityIndicator.hidesWhenStopped = true
@@ -302,7 +305,8 @@ extension PhotosViewController: UICollectionViewDelegate, UICollectionViewDataSo
                 print("MARCELA exibe imagem do MnagedObject")
                 cell.photoImage.image = UIImage(data: imageData)
             }
-            newCollectionButtonOutlet.isEnabled = true
+            
+            newCollectionButton.isEnabled = true
         }
         
         return cell
@@ -310,14 +314,17 @@ extension PhotosViewController: UICollectionViewDelegate, UICollectionViewDataSo
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         isOnDeleteMode = true
-        newCollectionButtonOutlet.title = "Remove Selected Pictures"
-        indexOfPhotosToDelete.append(indexPath.row)
+        newCollectionButton.title = "Remove Selected Pictures"
+        indexOfPhotosToDelete.append(indexPath)
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        indexOfPhotosToDelete = indexOfPhotosToDelete.filter { $0 != indexPath.row}
-        if indexOfPhotosToDelete.count == 0{
-            newCollectionButtonOutlet.title = "New Collection"
+        if let photoSelected = indexOfPhotosToDelete.index(of: indexPath){
+            indexOfPhotosToDelete.remove(at: photoSelected)
+        }
+//            indexOfPhotosToDelete.filter { $0 != indexPath}
+        if indexOfPhotosToDelete.isEmpty{
+            newCollectionButton.title = "New Collection"
         }
     }
 }
