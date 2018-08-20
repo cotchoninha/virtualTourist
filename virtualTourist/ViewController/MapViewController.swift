@@ -118,7 +118,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
             editButtonOutlet.title = "Edit"
         }
     }
-    //essa funcao só será chamada se o edit button for chamado
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         if let annotation = view.annotation as? MKPointAnnotation{
@@ -140,30 +139,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
                 controller.mapRegion = self.mapView.region
                 controller.pin = mapAnnotationDictionary[annotation]
                 self.present(controller, animated: true, completion: nil)
-                
-                
-                
-                
-                
-                
-//                FlikrRequestManager.sharedInstance().getPhotos(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude, numberOfPage: numberOfPage){(success, imagesArray, totalNumberOfPages, error) in
-//                    performUIUpdatesOnMain {
-//                        if success{
-//                            let controller = self.storyboard?.instantiateViewController(withIdentifier: "PhotosVC") as! PhotosViewController
-//                            controller.annotation = annotation as? MKPointAnnotation
-//                            controller.mapRegion = self.mapView.region
-//                            if let imagesArray = imagesArray {
-//                                if let totalNumberOfPages = totalNumberOfPages{
-//                                    controller.imagesArray = imagesArray
-//                                    controller.totalNumberOfPages = totalNumberOfPages
-//                                }
-//                            }
-//                            self.present(controller, animated: true, completion: nil)
-//                        }else{
-//                            //handle error
-//                        }
-//                    }
-//                }
             }
         }
     }

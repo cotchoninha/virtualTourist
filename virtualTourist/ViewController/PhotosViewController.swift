@@ -5,7 +5,6 @@
 //  Created by Marcela Ceneviva Auslenter on 02/08/2018.
 //  Copyright © 2018 Marcela Ceneviva Auslenter. All rights reserved.
 //
-//  quando eu clicar no pin ele abre as ultimas 21 imagens que estavam salvas na imagesArray
 
 import Foundation
 import UIKit
@@ -16,8 +15,6 @@ class PhotosViewController: UIViewController{
     
     var annotation: MKPointAnnotation?
     var mapRegion: MKCoordinateRegion?
-    var imagesArray = [ImageStruct]()
-    var downloadedImages = [UIImage?]()
     var isOnDeleteMode = false
     var indexOfPhotosToDelete = [IndexPath]()
     var numberOfThePage = 1
@@ -33,41 +30,6 @@ class PhotosViewController: UIViewController{
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        print("MARCELA início de viewDidLoad")
-        
-        self.mapView.isZoomEnabled = false
-        self.mapView.isScrollEnabled = false
-        self.mapView.isUserInteractionEnabled = false
-        if let annotation = annotation, let region = mapRegion{
-            mapView.addAnnotation(annotation)
-            mapView.setRegion(region, animated: true)
-        }
-        //Collection Layout
-        //TODO: remover linha abaixo depois de testar com CollectionView
-        collectionView.delegate = self
-        let space:CGFloat = 0.2
-        let dimension = (view.frame.size.width - (2 * space)) / 3.0
-        flowLayout.minimumInteritemSpacing = space
-        flowLayout.minimumLineSpacing = space
-        flowLayout.itemSize = CGSize(width: dimension, height: dimension)
-        
-        collectionView?.allowsMultipleSelection = true
-        
-    }
-    
-    fileprivate func fetchImagesInDB() {
-        let request: NSFetchRequest<Image> = Image.fetchRequest()
-        request.sortDescriptors = [NSSortDescriptor(key: #keyPath(Image.url), ascending: true)]
-        request.predicate = NSPredicate(format: "pin = %@", pin)
-        do {
-            fetchedRC = NSFetchedResultsController(fetchRequest: request, managedObjectContext: DataBaseController.getContext(), sectionNameKeyPath: nil, cacheName: nil)
-            try fetchedRC.performFetch()
-        } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
-        }
-    }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -85,17 +47,129 @@ class PhotosViewController: UIViewController{
                             if let imagesArray = imagesArray {
                                 if imagesArray.count != 0{
                                     for i in 0..<imagesArray.count{
-                                        //criar o MO e salvar os attributes url e pin
+                                        //COMMENT: create managedObj to save url and pin - image still nil
                                         let image = Image(context: DataBaseController.getContext())
                                         image.url = imagesArray[i].url
                                         image.pin = self.pin
                                     }
-                                    //salva no DB
                                     DataBaseController.saveContext()
-                                    //pega novamente as imagens com URL, pin e imageData = nil
                                     self.fetchImagesInDB()
                                     
-                                    //atualiza a collection view para aparecerem os activity indicators
+                                    //COMMENT: update collectionView to start showing activity indicators
+                                    performUIUpdatesOnMain {
+                                        self.collectionView.reloadData()
+                                    }
+                                }else{
+                                    //COMMENT: if there are no images on the request response, create label
+                                    performUIUpdatesOnMain {
+                                        self.createNoImagesLabel()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        //COMMENT: setting mapView
+        self.mapView.isZoomEnabled = false
+        self.mapView.isScrollEnabled = false
+        self.mapView.isUserInteractionEnabled = false
+        if let annotation = annotation, let region = mapRegion{
+            mapView.addAnnotation(annotation)
+            mapView.setRegion(region, animated: true)
+        }
+        //COMMENT: Collection Layout
+        let space:CGFloat = 0.2
+        let dimension = (view.frame.size.width - (2 * space)) / 3.0
+        flowLayout.minimumInteritemSpacing = space
+        flowLayout.minimumLineSpacing = space
+        flowLayout.itemSize = CGSize(width: dimension, height: dimension)
+        
+        collectionView?.allowsMultipleSelection = true
+        
+    }
+    
+    //MARK: fetch images on the dataBase and set Fetched Results Controller
+    fileprivate func fetchImagesInDB() {
+        let request: NSFetchRequest<Image> = Image.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(key: #keyPath(Image.url), ascending: true)]
+        request.predicate = NSPredicate(format: "pin = %@", pin)
+        do {
+            fetchedRC = NSFetchedResultsController(fetchRequest: request, managedObjectContext: DataBaseController.getContext(), sectionNameKeyPath: nil, cacheName: nil)
+            try fetchedRC.performFetch()
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+    }
+    
+    //MARK: create label "This pin has no images."
+    fileprivate func createNoImagesLabel() {
+        collectionView.isHidden = true
+        let label = UILabel()
+        label.frame = CGRect(x: 0, y: 526, width: self.view.frame.width, height: 50)
+        label.text = "This pin has no images."
+        label.textAlignment = .center
+        label.textColor = UIColor.black
+        label.backgroundColor = UIColor.white
+        label.font = UIFont(name: "Arial", size: 26)
+        self.view.addSubview(label)
+        newCollectionButton.isEnabled = false
+    }
+    
+    //MARK: delete all images associated with that pin from fetchRC
+    func resetAllRecords(){
+        if let objects = fetchedRC.fetchedObjects{
+            for object in objects {
+                DataBaseController.getContext().delete(object)
+            }
+            DataBaseController.saveContext()
+            fetchImagesInDB()
+            collectionView.reloadData()
+        }
+    }
+    
+    //MARK: determines the behaviour of the button get new collection
+    @IBAction func getNewCollectionOfImages(_ sender: Any) {
+        newCollectionButton.isEnabled = false
+        if isOnDeleteMode{
+            if let selectedItems = collectionView.indexPathsForSelectedItems{
+                let reversedIndexes = selectedItems.sorted().reversed()
+                for index in reversedIndexes{
+                    let objectToDelete = fetchedRC.object(at: index)
+                    DataBaseController.getContext().delete(objectToDelete)
+                }
+                DataBaseController.saveContext()
+                fetchImagesInDB()
+                collectionView.deleteItems(at: selectedItems)
+            }
+            indexOfPhotosToDelete.removeAll()
+            newCollectionButton.title = "New Collection"
+            newCollectionButton.isEnabled = true
+            isOnDeleteMode = false
+        }else{
+            if totalNumberOfPages == nil || numberOfThePage <= totalNumberOfPages!{
+                resetAllRecords()
+                if let latitude = annotation?.coordinate.latitude, let longitude = annotation?.coordinate.longitude{
+                    FlikrRequestManager.sharedInstance().getPhotos(latitude: latitude, longitude: longitude, numberOfPage: numberOfThePage) { (success, imagesArray, totalNumberOfPages, error) in
+                        if success{
+                            self.totalNumberOfPages = totalNumberOfPages
+                            self.numberOfThePage += 1
+                            if let imagesArray = imagesArray {
+                                if imagesArray.count != 0{
+                                    for i in 0..<imagesArray.count{
+                                        let image = Image(context: DataBaseController.getContext())
+                                        image.url = imagesArray[i].url
+                                        image.pin = self.pin
+                                    }
+                                    DataBaseController.saveContext()
+                                    self.fetchImagesInDB()
+                                    
                                     performUIUpdatesOnMain {
                                         self.collectionView.reloadData()
                                     }
@@ -105,9 +179,14 @@ class PhotosViewController: UIViewController{
                                     }
                                 }
                             }
+                        }else{
+                            print("Couldn't get urls - error \(error?.localizedDescription)")
                         }
                     }
                 }
+            }else{
+                //if totalNumberOfPages != nil && numberOfThePage > totalNumberOfPages
+                self.createNoImagesLabel()
             }
         }
     }
@@ -144,101 +223,9 @@ class PhotosViewController: UIViewController{
             }
             task.resume()
         }
-        
-        
-    }
-    
-    fileprivate func createNoImagesLabel() {
-        collectionView.isHidden = true
-        let label = UILabel()
-        label.frame = CGRect(x: 0, y: 526, width: self.view.frame.width, height: 50)
-        label.text = "This pin has no images."
-        label.textAlignment = .center
-        label.textColor = UIColor.black
-        label.backgroundColor = UIColor.white
-        label.font = UIFont(name: "Arial", size: 26)
-        self.view.addSubview(label)
-        newCollectionButton.isEnabled = false
-    }
-    
-    
-    func resetAllRecords(){
-        if let objects = fetchedRC.fetchedObjects{
-            for object in objects {
-                DataBaseController.getContext().delete(object)
-            }
-            DataBaseController.saveContext()
-            fetchImagesInDB()
-            print("MARCELA: FETCHRC.COUNT DENTRO DE resetAllRecords = \(fetchedRC.fetchedObjects?.count)")
-            collectionView.reloadData()
-        }
-    }
-    
-    @IBAction func getNewCollectionOfImages(_ sender: Any) {
-        newCollectionButton.isEnabled = false
-        if isOnDeleteMode{
-            if let selectedItems = collectionView.indexPathsForSelectedItems{
-                let reversedIndexes = selectedItems.sorted().reversed()
-                for index in reversedIndexes{
-                    let objectToDelete = fetchedRC.object(at: index)
-                    DataBaseController.getContext().delete(objectToDelete)
-                }
-                DataBaseController.saveContext()
-                fetchImagesInDB()
-                collectionView.deleteItems(at: selectedItems)
-            }
-            indexOfPhotosToDelete.removeAll()
-            newCollectionButton.title = "New Collection"
-            newCollectionButton.isEnabled = true
-            isOnDeleteMode = false
-        }else{
-            if totalNumberOfPages == nil || numberOfThePage <= totalNumberOfPages!{
-//                let deleteIndexPath = IndexPath(item: ((fetchedRC.fetchedObjects?.count)! - 1), section: 0)
-//                collectionView.deleteItems(at: [deleteIndexPath])
-                resetAllRecords()
-                if let latitude = annotation?.coordinate.latitude, let longitude = annotation?.coordinate.longitude{
-                    FlikrRequestManager.sharedInstance().getPhotos(latitude: latitude, longitude: longitude, numberOfPage: numberOfThePage) { (success, imagesArray, totalNumberOfPages, error) in
-                        if success{
-                            self.totalNumberOfPages = totalNumberOfPages
-                            self.numberOfThePage += 1
-                            if let imagesArray = imagesArray {
-                                if imagesArray.count != 0{
-                                    for i in 0..<imagesArray.count{
-                                        //criar o MO e salvar os attributes url e pin
-                                        let image = Image(context: DataBaseController.getContext())
-                                        image.url = imagesArray[i].url
-                                        image.pin = self.pin
-                                    }
-                                    //salva no DB
-                                    DataBaseController.saveContext()
-                                    //pega novamente as imagens com URL, pin e imageData = nil
-                                    self.fetchImagesInDB()
-
-                                    //atualiza a collection view para aparecerem os activity indicators
-                                    performUIUpdatesOnMain {
-                                        self.collectionView.reloadData()
-                                    }
-                                }else{
-                                    performUIUpdatesOnMain {
-                                        self.createNoImagesLabel()
-                                    }
-                                }
-                            }
-                        }else{
-                            //handle error
-                        }
-                    }
-                }
-            }else{
-                //remover todas as imagens e chamar reloadData()
-                self.createNoImagesLabel()
-                //mostro a label no images
-            }
-        }
     }
     
     @IBAction func okeyBackButton(_ sender: Any) {
-        imagesArray.removeAll()
         let mapController = self.storyboard?.instantiateViewController(withIdentifier: "MapVC") as! MapViewController
         self.present(mapController, animated: true, completion: nil)
     }
@@ -271,9 +258,10 @@ extension PhotosViewController: UICollectionViewDelegate, UICollectionViewDataSo
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         print("MARCELA início de cellForItem")
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! PhotoViewCell
-       
+        
         let fetchedObject = fetchedRC.object(at: indexPath)
         
+        //COMMENT: if imageData is nil, start activity indicator before downloading
         if fetchedObject.imageData == nil{
             print("MARCELA fetchedObject.imageData == nil")
             cell.photoImage.image = nil
@@ -297,6 +285,7 @@ extension PhotosViewController: UICollectionViewDelegate, UICollectionViewDataSo
                     }
                 }
             }
+        //COMMENT:when image is no longer nil, set the image on screen (depends on scroll of screen)
         }else{
             cell.activityIndicator.stopAnimating()
             cell.activityIndicator.hidesWhenStopped = true
@@ -305,10 +294,9 @@ extension PhotosViewController: UICollectionViewDelegate, UICollectionViewDataSo
                 print("MARCELA exibe imagem do MnagedObject")
                 cell.photoImage.image = UIImage(data: imageData)
             }
-            
             newCollectionButton.isEnabled = true
         }
-        
+
         return cell
     }
     
@@ -322,9 +310,10 @@ extension PhotosViewController: UICollectionViewDelegate, UICollectionViewDataSo
         if let photoSelected = indexOfPhotosToDelete.index(of: indexPath){
             indexOfPhotosToDelete.remove(at: photoSelected)
         }
-//            indexOfPhotosToDelete.filter { $0 != indexPath}
         if indexOfPhotosToDelete.isEmpty{
             newCollectionButton.title = "New Collection"
+            isOnDeleteMode = false
+
         }
     }
 }

@@ -88,6 +88,9 @@
 				0CFC4A7F211999810011BB6E /* FlikrRequestManager.swift */,
 				0CDB90AB210A44E300DB440D /* DataBaseController.swift */,
 				0CDB909221076EF300DB440D /* AppDelegate.swift */,
+				0CDBFB89211474A900E9CD62 /* GCDBlackBox.swift */,
+				0CDBFB8721135DD200E9CD62 /* Constants.swift */,
+				0C707BB92122152A003FEEB1 /* Image.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -98,9 +101,6 @@
 				0CDB90A7210793A900DB440D /* MapViewController.swift */,
 				0CDBFB852112764000E9CD62 /* PhotosViewController.swift */,
 				0CDBFB8B2114D34400E9CD62 /* PhotoViewCell.swift */,
-				0CDBFB8721135DD200E9CD62 /* Constants.swift */,
-				0C707BB92122152A003FEEB1 /* Image.swift */,
-				0CDBFB89211474A900E9CD62 /* GCDBlackBox.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
